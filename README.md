@@ -8,6 +8,8 @@ so it can be listed in
 [`SUPPORTED_LANGUAGES.md`](https://github.com/highlightjs/highlight.js/blob/main/SUPPORTED_LANGUAGES.md)
 and consumed the standard way.
 
+[![CI](https://github.com/fabeat/highlight-typst/actions/workflows/ci.yml/badge.svg)](https://github.com/fabeat/highlight-typst/actions/workflows/ci.yml)
+
 ## Install
 
 ```bash

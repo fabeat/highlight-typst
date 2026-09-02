@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel a previous run for the same branch / PR when a new
+# commit lands, so we don't waste CI minutes on stale commits.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Test against the LTS line that hljs itself targets,
+        # plus the latest LTS. Bumping these is intentional.
+        node: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        # `npm ci` is faster and stricter than `npm install`
+        # for CI; the lockfile pins every transitive dep.
+        run: npm ci
+
+      - name: Build
+        # `pretest` runs this too, but we want a clean artefact
+        # in the dist/ tree regardless of whether tests pass.
+        run: npm run build
+
+      - name: Test
+        # `npm test` invokes the `pretest` script (which runs
+        # `npm run build`) and then `mocha` against the
+        # markup fixtures in test/markup/typst/. The pretest
+        # re-build is redundant after the explicit `build`
+        # step above, but it's cheap (15ms) and keeps the
+        # local `npm test` workflow consistent.
+        run: npm test
+
+  lint-grammar:
+    # A second job that exercises the rollup outputs in a
+    # minimal Node environment to make sure the IIFE / CJS
+    # bundles are syntactically valid (rollup is happy when
+    # it produces output, but a missing export or a typo in
+    # a `format:` option would slip through). Loading each
+    # bundle in a fresh `node -e` script proves the artefact
+    # is usable from the consumer's perspective.
+    name: bundles load (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Load ESM grammar bundle
+        run: |
+          node --input-type=module -e "
+            import typst from './dist/typst.es.js'
+            import hljs from 'highlight.js/lib/core'
+            hljs.registerLanguage('typst', typst)
+            const html = hljs.highlight('= hi', { language: 'typst' }).value
+            if (!html.includes('hljs-title')) throw new Error('grammar did not produce expected output')
+            console.log('ESM bundle OK')
+          "
+
+      - name: Load CJS grammar bundle
+        run: |
+          node -e "
+            const typst = require('./dist/typst.cjs')
+            const hljs = require('highlight.js/lib/core')
+            hljs.registerLanguage('typst', typst)
+            const html = hljs.highlight('= hi', { language: 'typst' }).value
+            if (!html.includes('hljs-title')) throw new Error('grammar did not produce expected output')
+            console.log('CJS bundle OK')
+          "
+
+      - name: Load highlight wrapper bundle
+        run: |
+          node -e "
+            const { highlightTypst } = require('./dist/highlight.cjs')
+            const html = highlightTypst('= hi')
+            if (!html.includes('hljs-title')) throw new Error('wrapper did not produce expected output')
+            console.log('highlight wrapper OK')
+          "
