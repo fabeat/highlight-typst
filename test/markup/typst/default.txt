@@ -1,0 +1,27 @@
+// Starter document
+= Hello, Typst!
+
+This is rendered by *ext-typst* via the plugin.
+
+#let name = "World"
+#let greeting = [Hello, #name!]
+
+#greeting
+
+== Section
+
+- bullet one
+- bullet two
+  - nested bullet
+/ numbered one
++ term: definition
+
+`Inline code` and *strong* and _emphasis_ and ~subscript~.
+
+#let nums = (1, 2, 3)
+#let total = nums.fold(0, (acc, n) => acc + n)
+
+Total: #total.
+
+#set text(size: 12pt)
+#align(center)[Centered text]

@@ -1,0 +1,9 @@
+// Detection test - sample used by hljs.highlightAuto to
+// identify the language. Plain markup-and-code mix is
+// enough; we want it to be Typst-shaped, not SQL-shaped.
+
+= Detection sample
+
+#let greet(who) = [Hello, *#who*.]
+
+#greet("World")

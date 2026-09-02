@@ -1,0 +1,24 @@
+// Stress-test the markup emphasis + code-mode function rules
+// against a Typst document that mixes them in awkward ways:
+// emphasis at start of line, double-asterisk bold-italic,
+// dollar signs inside emphasis (the old math-rule regression),
+// and code-mode function calls inside markup blocks.
+*Strong at line start*
+
+_emph at line start_
+
+#let f(x) = [*x is #x*]
+
+#show heading: it => block[
+  *$#it.body$* renders to PDF
+]
+
+#let a = 5
+#let b = 10
+The sum is *#(a + b)*.
+
+Edge case: *bold *with* nested* emphasis.
+
+`Inline `code` with backticks`.
+
+==Heading inside emphasis?==

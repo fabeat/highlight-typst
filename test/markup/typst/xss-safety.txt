@@ -1,0 +1,10 @@
+// XSS safety regression: user-supplied source must come back
+// as escaped text inside spans, not as raw markup that could
+// break out of the highlight wrapper and execute.
+
+#let user_input = "<script>alert(1)</script>"
+#let img_in_text = "Hello <img src=x onerror=alert(1)> world"
+
+The user wrote: *<script>alert(1)</script>* in markup.
+
+Number: <script>not a script</script>

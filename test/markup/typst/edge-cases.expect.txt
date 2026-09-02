@@ -1,0 +1,25 @@
+<span class="hljs-comment">// Stress-test the markup emphasis + code-mode function rules</span>
+<span class="hljs-comment">// against a Typst document that mixes them in awkward ways:</span>
+<span class="hljs-comment">// emphasis at start of line, double-asterisk bold-italic,</span>
+<span class="hljs-comment">// dollar signs inside emphasis (the old math-rule regression),</span>
+<span class="hljs-comment">// and code-mode function calls inside markup blocks.</span>
+<span class="hljs-emphasis">*Strong at line start*</span>
+
+<span class="hljs-emphasis">_emph at line start_</span>
+
+#<span class="hljs-keyword">let</span> f(<span class="hljs-variable">x</span>) = [<span class="hljs-emphasis">*x is #x*</span>]
+
+#<span class="hljs-keyword">show</span> heading: it =&gt; <span class="hljs-built_in">block</span>[
+  <span class="hljs-emphasis">*$#it.body$*</span> renders to PDF
+]
+
+#<span class="hljs-keyword">let</span> a = <span class="hljs-number">5</span>
+#<span class="hljs-keyword">let</span> b = <span class="hljs-number">10</span>
+The sum is <span class="hljs-emphasis">*#(a + b)*</span>.
+
+Edge case: <span class="hljs-emphasis">*bold *with*</span> nested* emphasis.
+
+`Inline `code` with backticks`.
+
+==Heading inside emphasis?==
+

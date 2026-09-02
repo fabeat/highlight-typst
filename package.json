@@ -1,0 +1,56 @@
+{
+  "name": "highlightjs-typst",
+  "version": "0.1.0",
+  "description": "Custom highlight.js language definition for Typst markup + code, plus a thin highlight(source) wrapper. Follows the official highlight.js third-party grammar template structure so it can be listed in SUPPORTED_LANGUAGES.md.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/typst.cjs",
+  "module": "dist/typst.es.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/typst.es.js",
+      "require": "./dist/typst.cjs",
+      "default": "./dist/typst.es.js"
+    },
+    "./highlight": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/highlight.es.js",
+      "require": "./dist/highlight.cjs"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "css-class-reference.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "typst",
+    "highlight.js",
+    "highlightjs",
+    "hljs",
+    "syntax-highlighting",
+    "code-highlighting",
+    "markup"
+  ],
+  "author": "fabeat",
+  "peerDependencies": {
+    "highlight.js": "^11.11.0"
+  },
+  "devDependencies": {
+    "glob": "^11.0.0",
+    "highlight.js": "^11.11.1",
+    "mocha": "^11.2.2",
+    "rollup": "^4.0.2",
+    "should": "^13.2.3"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "pretest": "npm run build",
+    "test": "mocha",
+    "test:markup": "npm test"
+  }
+}
