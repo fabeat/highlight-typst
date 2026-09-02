@@ -13,7 +13,7 @@
    block comment
    with several lines */</span>
 
-#<span class="hljs-keyword">let</span> ratio = <span class="hljs-number">1</span> <span class="hljs-comment">/* inline block */</span> / <span class="hljs-number">2</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-built_in">ratio</span> = <span class="hljs-number">1</span> <span class="hljs-comment">/* inline block */</span> / <span class="hljs-number">2</span>
 
 <span class="hljs-comment">/* nested-looking content:
    #let not_actually_code = 1

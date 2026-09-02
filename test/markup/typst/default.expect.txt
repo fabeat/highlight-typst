@@ -1,7 +1,7 @@
 <span class="hljs-comment">// Starter document</span>
 <span class="hljs-title">= Hello, Typst!</span>
 
-This is rendered by <span class="hljs-emphasis">*ext-typst*</span> via the plugin.
+This is rendered by <span class="hljs-emphasis">*ext-typst*</span> via the <span class="hljs-built_in">plugin</span>.
 
 #<span class="hljs-keyword">let</span> name = <span class="hljs-string">&quot;World&quot;</span>
 #<span class="hljs-keyword">let</span> greeting = [Hello, <span class="hljs-function">#name</span>!]

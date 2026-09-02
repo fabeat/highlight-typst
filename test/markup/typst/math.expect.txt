@@ -1,0 +1,39 @@
+<span class="hljs-comment">// Math mode re-added with strict delimiters so a `$` inside</span>
+<span class="hljs-comment">// markup emphasis (e.g. `*$#var*`) doesn&#x27;t get misread as</span>
+<span class="hljs-comment">// the start of a math span that swallows the rest of the</span>
+<span class="hljs-comment">// document.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Two flavours:</span>
+<span class="hljs-comment">//   - Inline math:  $x^2$           (no space around the `$`s)</span>
+<span class="hljs-comment">//   - Block math:   $ x^2 $          (space around the `$`s)</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The grammar&#x27;s strict delimiters:</span>
+<span class="hljs-comment">//   - begin: `(?&lt;!\w)\$\S` (or `\$\s` for block math) —</span>
+<span class="hljs-comment">//     `$` is not preceded by a word char</span>
+<span class="hljs-comment">//   - end:   `\S\$(?!\w)`  (or `\s\$` for block math) —</span>
+<span class="hljs-comment">//     `$` is not followed by a word char</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Regression: this is the case from `invoice.txt` where a</span>
+<span class="hljs-comment">// loose `$...$` rule ate the rest of the file. The strict</span>
+<span class="hljs-comment">// delimiters confine the math span to the actual math</span>
+<span class="hljs-comment">// content and don&#x27;t conflict with `$` inside markup.</span>
+
+The quadratic formula is <span class="hljs-meta">$x = (-b plus_minus sqrt(b^2 - 4 a c)) / (2 a)$</span>.
+
+A display <span class="hljs-built_in">equation</span> follows:
+
+$ E = m c^<span class="hljs-number">2</span> $
+
+And a multi-<span class="hljs-built_in">line</span> <span class="hljs-built_in">block</span>:
+
+$ sum_(<span class="hljs-variable">i</span>=<span class="hljs-number">1</span>)^n i = (n (n+<span class="hljs-number">1</span>)) / <span class="hljs-number">2</span> $
+
+Inline math with a Typst code reference: <span class="hljs-meta">$f(x) = #f(0)$</span>.
+
+Math with a markup reference inside: see <span class="hljs-meta">$@eq:main$</span> <span class="hljs-keyword">for</span>
+the main result.
+
+<span class="hljs-title">= Heading with math &lt;eq:main&gt;</span>
+
+The Euler identity: <span class="hljs-meta">$e^(i pi) + 1 = 0$</span>.
+

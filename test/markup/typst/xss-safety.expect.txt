@@ -7,5 +7,5 @@
 
 The user wrote: <span class="hljs-emphasis">*&lt;script&gt;alert(1)&lt;/script&gt;*</span> <span class="hljs-keyword">in</span> markup.
 
-Number: &lt;script&gt;<span class="hljs-keyword">not</span> a script&lt;/script&gt;
+Number: <span class="hljs-symbol">&lt;script&gt;</span><span class="hljs-keyword">not</span> a script&lt;/script&gt;
 

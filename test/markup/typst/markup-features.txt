@@ -1,0 +1,54 @@
+// Cover the markup features the simpler fixtures don't touch:
+// strong emphasis (`**` / `__`), em-dash (`---`), ellipsis
+// (`...`), character escapes (`\#` etc.), label targets
+// (`<label>`), and reference use sites (`@label`).
+//
+// All of these are unambiguous and shouldn't interact with
+// the existing emphasis / number / string rules, but the
+// markup-features fixtures exist to lock the interaction
+// down. If a future change to the grammar breaks one of
+// these (e.g. by making the strong rule too greedy), this
+// test surfaces it.
+
+= Introduction <intro>
+
+In this chapter we cover *emphasis*, _also emphasis_,
+**strong emphasis**, and __also strong__.
+
+You can also use ~subscript~ and `code`.
+
+A few typographic shorthands: an em-dash ---, an en-dash --,
+and an ellipsis ...
+
+Character escapes let you write a literal \# in markup, or
+a literal \* asterisk, or a literal \[ bracket. The
+Unicode escape form works too: \u{1f600} renders as an emoji.
+
+Cross-references: see @intro on page @syntax for the syntax
+overview, and @built-ins for the standard library.
+
+The label syntax `<intro>` is itself a markup token. So
+`\<label\>` is an escaped label reference, not a label.
+
+The set rule applies a style globally:
+#set heading(numbering: "1.")
+
+= Strong styling <strong>
+
+This is _italic_, *also italic*, __bold__, and **also
+bold**. Mix and match for *nested* emphasis.
+
+= Code with labels
+
+#let section = <sec:main>
+#let private_var = 42
+
+Use @sec:main to cross-reference the section.
+
+The `<sec:main>` label can be reached via the
+ref function, like #ref(<sec:main>).
+
+= Em-dash and ellipsis in prose
+
+Typst --- as a single token --- renders as an em-dash.
+Multiple dots... render as a single ellipsis character.

@@ -6,7 +6,7 @@
 Language: Typst
 Requires: highlight.js >= 11
 Author: fabeat
-Description: Typst markup + code hybrid. Covers comments, double-quoted strings, numbers (with unit suffixes), markup headings, list/term/enum markers, strong/emph/sub/sup markup, code-mode function calls, keywords, literals, and the standard library built-ins.
+Description: Typst markup + code hybrid. Covers comments, double-quoted strings, numbers (with unit suffixes), markup headings, list/term/enum markers, strong/emph/sub/sup markup, code-mode function calls, keywords, literals, the standard library, labels, references, character escapes, em-dash, ellipsis, and inline/block math. Sourced from the official Typst reference at https://typst.app/docs/reference/.
 Website: https://typst.app/
 Category: markup
 */
@@ -14,43 +14,37 @@ Category: markup
 /**
  * Custom highlight.js language definition for Typst.
  *
- * Typst is a markup-and-code hybrid: documents start in markup
- * mode (e.g. an "=" heading, an "*bold*" span, a "- list" item)
- * and switch into code mode when the author types "#" (e.g.
- * "#let x = 1", "#if cond { ... }", "#func(arg: val)"). Markup
- * and code can be nested inside each other via brackets: "[...]"
- * are content blocks, "(...)" group code expressions, "{...}"
- * are code blocks. Strings live in code mode only.
+ * Sourced from the official Typst reference
+ * (https://typst.app/docs/reference/) so the keyword,
+ * literal, and built-in lists match the standard library the
+ * way the docs describe it.
  *
- * We don't try to be a complete parser - hljs's regex modes are
- * greedy and ambiguity is fine for "make this readable". The goal
- * is to colour:
- *   - comments (line "//", block slash-star)
- *   - strings (double-quoted, with backslash escapes)
- *   - numbers (incl. unit suffixes like 12pt, 50%, 1.5em)
- *   - markup markers (=, +, -, /, *, _, ~) at line start or
- *     after whitespace
- *   - code-mode function calls (#identifier) and keywords
- *     (let, if, for, set, show, import, include, as, in,
- *     return, not, and, or, true, false, none, auto, while,
- *     break, continue, else)
- *   - built-in functions (align, block, text, grid, table,
- *     figure, image, link, list, enum, raw, par, emph, strong,
- *     underline, strike, highlight, pad, place, v, h, box,
- *     stack, terms, footnote, cite, bibliography, outline,
- *     query, counter, state, context, measure, page, line,
- *     parbreak, sequence, plus a few dozen more)
+ * Typst is a markup-and-code hybrid: documents start in
+ * markup mode (e.g. an "=" heading, an "*emphasis*" span, a
+ * "- list" item) and switch into code mode when the author
+ * types "#" (e.g. "#let x = 1", "#if cond { ... }"). Markup
+ * and code can be nested via brackets: "[...]" are content
+ * blocks, "(...)" group code expressions, "{...}" are code
+ * blocks. Strings live in code mode only.
  *
- * We intentionally do NOT handle inline math ($...$ / $$...$$)
- * because the regex approach can't tell a "$" inside markup
- * emphasis (e.g. "*$#var*") from a math delimiter, and the
- * greedy "first $ to next $" rule swallows the rest of the
- * document whenever a $ appears in markup. hljs's whole-file
- * mode makes the fix worse than the problem.
+ * The grammar is intentionally incomplete - hljs's regex
+ * modes are greedy and a true parser would be hundreds of
+ * times bigger. The goal is "make this readable", not "this
+ * is the Typst grammar".
  *
- * The grammar is a single self-contained function so we don't
- * pull in a TextMate runtime. highlight.js's core (~10KB
- * gzipped) is the only runtime cost.
+ * Notable omissions (each is a deliberate trade-off):
+ *   - Smart quotes: '...' and "..." are 2-3 chars wide each;
+ *     the regex can't disambiguate from apostrophes and
+ *     closing quotes that mark the end of an identifier.
+ *   - Inline code with backticks: the `...` is the same
+ *     character set as a one-line raw block (`...)`, so a
+ *     separate mode would conflict with the backtick-aware
+ *     raw-block path.
+ *   - The `-` as a decrement operator doesn't exist in
+ *     Typst, but `--` (en-dash) is the same character pair
+ *     so we don't try to colour it.
+ *   - The non-breaking-space shorthand `~` is a single
+ *     non-printing character; we leave it as plain text.
  *
  * References:
  *   - Typst reference: https://typst.app/docs/reference/
@@ -66,18 +60,51 @@ const KEYWORDS = [
 
 const LITERALS = ['true', 'false', 'none', 'auto'];
 
+// Full standard library + module names. Some of these
+// (calc, str, int, ...) are modules that are accessed as
+// `module.member` rather than called directly, but hljs
+// can't tell the difference and the colour is appropriate
+// either way.
 const BUILT_INS = [
-  'align', 'block', 'box', 'cite', 'colbreak', 'column', 'columns',
-  'counter', 'datum', 'emph', 'enum', 'figure', 'footnote', 'grid',
-  'h', 'highlight', 'hline', 'image', 'line', 'link', 'list',
-  'measure', 'outline', 'overbrace', 'page', 'pagebreak', 'pages',
-  'pad', 'par', 'parbreak', 'place', 'quote', 'raw', 'rect', 'ref',
-  'repeat', 'rotate', 'scale', 'sequence', 'stack', 'state',
-  'strong', 'strike', 'stroke', 'table', 'terms', 'text',
-  'underline', 'underbracket', 'v', 'vbreak', 'vline',
-  'bibliography', 'component', 'locate', 'query', 'selector',
-  'style', 'numbering', 'layout', 'move', 'scope', 'transform',
-  'circle', 'ellipse', 'path', 'polygon', 'curve',
+  // Foundations (modules + functions)
+  'array', 'assert', 'auto', 'bool', 'bytes', 'calc', 'content',
+  'datetime', 'decimal', 'dictionary', 'duration', 'eval', 'float',
+  'function', 'int', 'label', 'module', 'none', 'panic', 'path',
+  'plugin', 'regex', 'repr', 'selector', 'std', 'str', 'symbol',
+  'sys', 'target', 'type', 'version',
+  // Model
+  'asset', 'bibliography', 'cite', 'divider', 'document', 'emph',
+  'enum', 'figure', 'footnote', 'heading', 'link', 'list',
+  'numbering', 'outline', 'par', 'parbreak', 'quote', 'ref',
+  'strong', 'table', 'terms', 'title',
+  // Text
+  'highlight', 'linebreak', 'lorem', 'lower', 'overline', 'raw',
+  'smallcaps', 'smartquote', 'strike', 'sub', 'super', 'text',
+  'underline', 'upper',
+  // Math
+  'accent', 'attach', 'binom', 'cancel', 'cases', 'class',
+  'equation', 'frac', 'lr', 'mat', 'op', 'primes', 'roots',
+  'sizes', 'stretch', 'styles', 'underover', 'variants', 'vec',
+  // Layout
+  'align', 'alignment', 'angle', 'block', 'box', 'colbreak',
+  'column', 'columns', 'direction', 'fraction', 'grid', 'hide',
+  'h', 'layout', 'length', 'measure', 'move', 'pad', 'page',
+  'pagebreak', 'pages', 'place', 'ratio', 'relative', 'repeat',
+  'rotate', 'scale', 'skew', 'stack', 'v', 'vbreak', 'vline',
+  // Visualize
+  'circle', 'color', 'curve', 'ellipse', 'gradient', 'image',
+  'line', 'polygon', 'rect', 'square', 'stroke', 'tiling',
+  // Introspection
+  'counter', 'here', 'locate', 'location', 'metadata', 'query',
+  'state',
+  // Data loading
+  'cbor', 'csv', 'json', 'read', 'toml', 'xml', 'yaml',
+  // Export
+  'artifact', 'data-cell', 'header-cell', 'table-summary', 'elem',
+  'frame', 'typed',
+  // Legacy / additional
+  'colbreak', 'column', 'hline', 'pagebreak', 'pages', 'overline',
+  'place', 'rest', 'style', 'vbreak', 'vline',
 ];
 
 /** @param {import('highlight.js').HLJSApi} hljs */
@@ -108,9 +135,7 @@ function typst (hljs) {
 
       // Strings (double-quoted, with backslash escapes).
       // Typst also supports line-broken strings via a
-      // backslash at end of line - accept the literal
-      // newline so the string terminates correctly on the
-      // next physical line.
+      // backslash at end of line.
       {
         className: 'string',
         begin: '"',
@@ -129,8 +154,7 @@ function typst (hljs) {
       },
 
       // Markup-mode section headings at line start:
-      // `=`, `==`, `===` (up to 5). Only at the beginning
-      // of a line, so we don't catch assignment `==` in code.
+      // `=`, `==`, `===` (up to 5).
       {
         className: 'title',
         begin: '^={1,5}\\s',
@@ -139,27 +163,62 @@ function typst (hljs) {
         contains: [{ className: 'meta', begin: '^={1,5}' }],
       },
 
-      // Markup-mode list / term / enum markers at line start.
+      // Markup-mode list markers at line start:
+      //   - foo       bullet list
+      //   + foo       numbered list
+      //   / **Term**: description   term list
       {
         className: 'bullet',
         begin: '^[+\\-/]\\s',
         relevance: 0,
       },
 
-      // Markup-mode strong / emph / sub / sup markers.
-      // We don't try to be exhaustive (nested * and _ is
-      // ambiguous) - just colour the opening character so
-      // the visual cue lands.
-      //
-      // The same shape for *, _, and ~: `marker` followed by
-      // a non-marker non-space char, ending with the same
-      // pair reversed. The negative lookbehind on the begin
-      // excludes the marker chars AND any word character so
-      // a marker inside an identifier (e.g. `var_name` or
-      // `var*foo`) doesn't get misread as emphasis start.
-      // The negative lookahead on the end prevents `**foo**`
-      // (with adjacent markers) from matching as `*` then
-      // `*foo*`.
+      // Block math: `$$ ... $$`. Whitespace padding around
+      // the content is the standard Typst convention for
+      // display math, but the rule is intentionally lenient.
+      {
+        className: 'meta',
+        begin: '\\$\\$',
+        end: '\\$\\$',
+        contains: [{ className: 'string', begin: '\\$', end: '\\$' }],
+      },
+
+      // Inline math: `$x$`. Strict begin: `$` not preceded by
+      // a word char, not preceded by another `$` (to skip
+      // `$$`). Strict end: `$` not followed by a digit or
+      // letter (so `100$` or `var$` don't match). This
+      // means `$#var$` (Typst syntax inside math) still
+      // works because `$` is at a word boundary, and
+      // `*$#var*` in markup is safe because the `$` is
+      // preceded by `*` (which is a word boundary for our
+      // purposes).
+      {
+        className: 'meta',
+        begin: '(?<!\\w)\\$\\S',
+        end: '\\S\\$(?!\\w)',
+        relevance: 0,
+      },
+
+      // Markup-mode strong emphasis: `**foo**` and `__foo__`.
+      // These come BEFORE the single-marker rules so a `**`
+      // pair wins over two adjacent `*` emphases.
+      {
+        className: 'strong',
+        begin: '(?<![*_~\\w])\\*\\*[^*\\s]',
+        end: '[^*\\s]\\*\\*(?![*_~])',
+        relevance: 0,
+      },
+      {
+        className: 'strong',
+        begin: '(?<![*_~\\w])__[^_\\s]',
+        end: '[^_\\s]__(?![*_~])',
+        relevance: 0,
+      },
+
+      // Markup-mode emphasis: `*foo*` and `_foo_`.
+      // Lookbehind excludes `*_~` and word chars so a marker
+      // inside an identifier (`var_name`, `var*foo`) doesn't
+      // get misread as emphasis start.
       {
         className: 'emphasis',
         begin: '(?<![*_~\\w])\\*[^*\\s]',
@@ -172,6 +231,11 @@ function typst (hljs) {
         end: '[^_\\s]_(?![*_~])',
         relevance: 0,
       },
+
+      // Sub/superscript markup: `~foo~`. The single `~`
+      // shorthand is a non-breaking space in markup; the
+      // emphasis rule needs a pair of `~`s with non-space
+      // content between them.
       {
         className: 'emphasis',
         begin: '(?<![*_~\\w])~[^~\\s]',
@@ -179,22 +243,68 @@ function typst (hljs) {
         relevance: 0,
       },
 
+      // Character escape: `\#`, `\*`, `\_`, `\$`, `\@`, `\<`,
+      // `\>`, `\[`, `\]`, `\(`, `\)`, `\{`, `\}`, `\=`, `\-`,
+      // `\+`, `\/`, `\:`, `\;`, `\'`, `\"`, and the
+      // Unicode form `\u{1f600}`. The escaped backslash
+      // (`\\`) is a literal `\` and is matched too.
+      {
+        className: 'meta',
+        begin:
+          '\\\\(?:[\\#\\$\\@\\<\\>\\[\\]\\(\\)\\{\\}\\=\\-\\+\\/\\:\\;\\\'\\"\\*]|(?:u\\{[0-9A-Fa-f]+\\}))',
+        relevance: 0,
+      },
+
+      // Label reference target: `<identifier>` (or
+      // `<namespace:label>`). Must be at a word boundary
+      // (preceded by whitespace, start of line, or
+      // punctuation) so the `if a < b` less-than isn't
+      // misread.
+      {
+        className: 'symbol',
+        begin:
+          '(?:^|(?<=[\\s\\(\\[\\{,;]))<[a-zA-Z_][a-zA-Z0-9_\\-]*(?::[a-zA-Z_][a-zA-Z0-9_\\-]*)?>',
+        relevance: 0,
+      },
+
+      // Label reference use site: `@identifier` (or
+      // `@namespace:label`).
+      {
+        className: 'symbol',
+        begin:
+          '(?:^|(?<=[\\s\\(\\[\\{,;]))@[a-zA-Z_][a-zA-Z0-9_\\-]*(?::[a-zA-Z_][a-zA-Z0-9_\\-]*)?',
+        relevance: 0,
+      },
+
+      // Em-dash (`---`) and ellipsis (`...`). En-dash (`--`)
+      // is omitted to avoid clashing with two adjacent `-`
+      // characters in an argument list.
+      {
+        className: 'string',
+        begin: '---',
+        relevance: 0,
+      },
+      {
+        className: 'string',
+        begin: '\\.\\.\\.',
+        relevance: 0,
+      },
+
       // Code-mode function call: `#identifier`. The
       // negative lookahead skips the language keywords and
       // built-ins so they fall through to the keyword rule
-      // and get their own colour instead of being painted
-      // as a regular function.
+      // and get their own colour.
       {
         className: 'function',
         begin: `#(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*`,
         relevance: 0,
       },
 
-      // Code-mode variable references inside an expression.
-      // We only catch them when they're surrounded by typical
-      // code-mode punctuation (e.g. `(`, `,`, `=`, `:`) so
-      // markup words like `Hello` in a paragraph don't get
-      // coloured.
+      // Code-mode variable references inside an
+      // expression. We only catch them when they're
+      // surrounded by typical code-mode punctuation
+      // (e.g. `(`, `,`, `=`, `:`) so markup words like
+      // `Hello` in a paragraph don't get coloured.
       {
         className: 'variable',
         begin: '(?<=[(,=:])[a-zA-Z_][a-zA-Z0-9_\\-]*(?=\\s*[,)=:])',

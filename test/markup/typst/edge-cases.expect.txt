@@ -9,7 +9,7 @@
 
 #<span class="hljs-keyword">let</span> f(<span class="hljs-variable">x</span>) = [<span class="hljs-emphasis">*x is #x*</span>]
 
-#<span class="hljs-keyword">show</span> heading: it =&gt; <span class="hljs-built_in">block</span>[
+#<span class="hljs-keyword">show</span> <span class="hljs-built_in">heading</span>: it =&gt; <span class="hljs-built_in">block</span>[
   <span class="hljs-emphasis">*$#it.body$*</span> renders to PDF
 ]
 

@@ -1,0 +1,38 @@
+// Math mode re-added with strict delimiters so a `$` inside
+// markup emphasis (e.g. `*$#var*`) doesn't get misread as
+// the start of a math span that swallows the rest of the
+// document.
+//
+// Two flavours:
+//   - Inline math:  $x^2$           (no space around the `$`s)
+//   - Block math:   $ x^2 $          (space around the `$`s)
+//
+// The grammar's strict delimiters:
+//   - begin: `(?<!\w)\$\S` (or `\$\s` for block math) —
+//     `$` is not preceded by a word char
+//   - end:   `\S\$(?!\w)`  (or `\s\$` for block math) —
+//     `$` is not followed by a word char
+//
+// Regression: this is the case from `invoice.txt` where a
+// loose `$...$` rule ate the rest of the file. The strict
+// delimiters confine the math span to the actual math
+// content and don't conflict with `$` inside markup.
+
+The quadratic formula is $x = (-b plus_minus sqrt(b^2 - 4 a c)) / (2 a)$.
+
+A display equation follows:
+
+$ E = m c^2 $
+
+And a multi-line block:
+
+$ sum_(i=1)^n i = (n (n+1)) / 2 $
+
+Inline math with a Typst code reference: $f(x) = #f(0)$.
+
+Math with a markup reference inside: see $@eq:main$ for
+the main result.
+
+= Heading with math <eq:main>
+
+The Euler identity: $e^(i pi) + 1 = 0$.
