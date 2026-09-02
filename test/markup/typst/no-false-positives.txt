@@ -1,0 +1,43 @@
+// Regression test: keywords, literals, and standard-library
+// builtins are reserved in CODE MODE only (after a leading
+// `#`). The same words in a markup paragraph, a comment, or
+// inside a content block `[...]` are just text and must
+// not be highlighted.
+//
+// Before commit fixing the false-positive bug, the grammar
+// listed the keyword/builtin/literal sets in the top-level
+// `keywords` field, so hljs's keyword engine matched them
+// anywhere in the document. A sentence like "this document
+// is for everyone" would highlight `for` as a keyword and
+// "see the table of contents" would highlight `table` as a
+// built-in. Wrong: those are markup words.
+//
+// Each line below contains a word that's on the reserved
+// list. None of them should be highlighted in markup mode
+// (i.e. without a leading `#`).
+
+This is body text under a level-1 heading. The word text
+appears three times here: text, text, text.
+
+A second-level heading follows. The word heading is plain
+text in this sentence.
+
+Body text under level 3 — useful for subsections that don't
+appear in the auto-generated table of contents.
+
+#emph[Inline emphasis] and #strong[strong text] round out
+the common formatting primitives.
+
+The words emph, strong, text, table, heading, for, in, and,
+or, set, let, show, true, false, none, auto, page, block,
+align, grid, columns, math, ref, cite, list, enum, terms
+are all just text in this paragraph. None of them is
+followed by a `[...]` or `(...)` call site, so they are
+not in code mode and should not be highlighted.
+
+A trailing block-quote:
+
+> The set of all sets that do not contain themselves.
+
+The word set here is plain English. The word auto
+here is a regular adjective, not a literal.

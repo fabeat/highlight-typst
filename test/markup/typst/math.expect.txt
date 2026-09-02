@@ -20,17 +20,17 @@
 
 The quadratic formula is <span class="hljs-meta">$x = (-b plus_minus sqrt(b^2 - 4 a c)) / (2 a)$</span>.
 
-A display <span class="hljs-built_in">equation</span> follows:
+A display equation follows:
 
 $ E = m c^<span class="hljs-number">2</span> $
 
-And a multi-<span class="hljs-built_in">line</span> <span class="hljs-built_in">block</span>:
+And a multi-line block:
 
 $ sum_(<span class="hljs-variable">i</span>=<span class="hljs-number">1</span>)^n i = (n (n+<span class="hljs-number">1</span>)) / <span class="hljs-number">2</span> $
 
 Inline math with a Typst code reference: <span class="hljs-meta">$f(x) = #f(0)$</span>.
 
-Math with a markup reference inside: see <span class="hljs-meta">$@eq:main$</span> <span class="hljs-keyword">for</span>
+Math with a markup reference inside: see <span class="hljs-meta">$@eq:main$</span> for
 the main result.
 
 <span class="hljs-title">= Heading with math &lt;eq:main&gt;</span>

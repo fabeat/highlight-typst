@@ -13,43 +13,43 @@
 <span class="hljs-title">= Introduction &lt;intro&gt;</span>
 
 In this chapter we cover <span class="hljs-emphasis">*emphasis*</span>, <span class="hljs-emphasis">_also emphasis_</span>,
-<span class="hljs-strong">**strong emphasis**</span>, <span class="hljs-keyword">and</span> <span class="hljs-strong">__also strong__</span>.
+<span class="hljs-strong">**strong emphasis**</span>, and <span class="hljs-strong">__also strong__</span>.
 
-You can also use <span class="hljs-emphasis">~subscript~</span> <span class="hljs-keyword">and</span> `code`.
+You can also use <span class="hljs-emphasis">~subscript~</span> and `code`.
 
 A few typographic shorthands: an em-dash <span class="hljs-string">---</span>, an en-dash --,
-<span class="hljs-keyword">and</span> an ellipsis <span class="hljs-string">...</span>
+and an ellipsis <span class="hljs-string">...</span>
 
-Character escapes <span class="hljs-keyword">let</span> you write a literal <span class="hljs-meta">\#</span> <span class="hljs-keyword">in</span> markup, <span class="hljs-keyword">or</span>
-a literal <span class="hljs-meta">\*</span> asterisk, <span class="hljs-keyword">or</span> a literal <span class="hljs-meta">\[</span> bracket. The
-Unicode escape form works too: <span class="hljs-meta">\u{1f600}</span> renders <span class="hljs-keyword">as</span> an emoji.
+Character escapes let you write a literal <span class="hljs-meta">\#</span> in markup, or
+a literal <span class="hljs-meta">\*</span> asterisk, or a literal <span class="hljs-meta">\[</span> bracket. The
+Unicode escape form works too: <span class="hljs-meta">\u{1f600}</span> renders as an emoji.
 
-Cross-references: see <span class="hljs-symbol">@intro</span> on <span class="hljs-built_in">page</span> <span class="hljs-symbol">@syntax</span> <span class="hljs-keyword">for</span> the syntax
-overview, <span class="hljs-keyword">and</span> <span class="hljs-symbol">@built-ins</span> <span class="hljs-keyword">for</span> the standard library.
+Cross-references: see <span class="hljs-symbol">@intro</span> on page <span class="hljs-symbol">@syntax</span> for the syntax
+overview, and <span class="hljs-symbol">@built-ins</span> for the standard library.
 
-The <span class="hljs-built_in">label</span> syntax `&lt;intro&gt;` is itself a markup token. So
-`<span class="hljs-meta">\&lt;</span><span class="hljs-built_in">label</span><span class="hljs-meta">\&gt;</span>` is an escaped <span class="hljs-built_in">label</span> reference, <span class="hljs-keyword">not</span> a <span class="hljs-built_in">label</span>.
+The label syntax `&lt;intro&gt;` is itself a markup token. So
+`<span class="hljs-meta">\&lt;</span>label<span class="hljs-meta">\&gt;</span>` is an escaped label reference, not a label.
 
-The <span class="hljs-keyword">set</span> rule applies a <span class="hljs-built_in">style</span> globally:
-#<span class="hljs-keyword">set</span> <span class="hljs-built_in">heading</span>(<span class="hljs-variable">numbering</span>: <span class="hljs-string">&quot;1.&quot;</span>)
+The set rule applies a style globally:
+<span class="hljs-keyword">#set</span> heading(<span class="hljs-variable">numbering</span>: <span class="hljs-string">&quot;1.&quot;</span>)
 
 <span class="hljs-title">= Strong styling &lt;strong&gt;</span>
 
-This is <span class="hljs-emphasis">_italic_</span>, <span class="hljs-emphasis">*also italic*</span>, <span class="hljs-strong">__bold__</span>, <span class="hljs-keyword">and</span> <span class="hljs-strong">**also
-bold**</span>. Mix <span class="hljs-keyword">and</span> match <span class="hljs-keyword">for</span> <span class="hljs-emphasis">*nested*</span> emphasis.
+This is <span class="hljs-emphasis">_italic_</span>, <span class="hljs-emphasis">*also italic*</span>, <span class="hljs-strong">__bold__</span>, and <span class="hljs-strong">**also
+bold**</span>. Mix and match for <span class="hljs-emphasis">*nested*</span> emphasis.
 
 <span class="hljs-title">= Code with labels</span>
 
-#<span class="hljs-keyword">let</span> section = <span class="hljs-symbol">&lt;sec:main&gt;</span>
-#<span class="hljs-keyword">let</span> private_var = <span class="hljs-number">42</span>
+<span class="hljs-keyword">#let</span> section = <span class="hljs-symbol">&lt;sec:main&gt;</span>
+<span class="hljs-keyword">#let</span> private_var = <span class="hljs-number">42</span>
 
 Use <span class="hljs-symbol">@sec:main</span> to cross-reference the section.
 
-The `&lt;sec:main&gt;` <span class="hljs-built_in">label</span> can be reached via the
-<span class="hljs-built_in">ref</span> <span class="hljs-built_in">function</span>, like #<span class="hljs-built_in">ref</span>(<span class="hljs-symbol">&lt;sec:main&gt;</span>).
+The `&lt;sec:main&gt;` label can be reached via the
+ref function, like <span class="hljs-built_in">#ref</span>(<span class="hljs-symbol">&lt;sec:main&gt;</span>).
 
 <span class="hljs-title">= Em-dash and ellipsis in prose</span>
 
-Typst <span class="hljs-string">---</span> <span class="hljs-keyword">as</span> a single token <span class="hljs-string">---</span> renders <span class="hljs-keyword">as</span> an em-dash.
-Multiple dots<span class="hljs-string">...</span> render <span class="hljs-keyword">as</span> a single ellipsis character.
+Typst <span class="hljs-string">---</span> as a single token <span class="hljs-string">---</span> renders as an em-dash.
+Multiple dots<span class="hljs-string">...</span> render as a single ellipsis character.
 

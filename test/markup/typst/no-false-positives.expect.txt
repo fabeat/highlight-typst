@@ -1,0 +1,44 @@
+<span class="hljs-comment">// Regression test: keywords, literals, and standard-library</span>
+<span class="hljs-comment">// builtins are reserved in CODE MODE only (after a leading</span>
+<span class="hljs-comment">// `#`). The same words in a markup paragraph, a comment, or</span>
+<span class="hljs-comment">// inside a content block `[...]` are just text and must</span>
+<span class="hljs-comment">// not be highlighted.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Before commit fixing the false-positive bug, the grammar</span>
+<span class="hljs-comment">// listed the keyword/builtin/literal sets in the top-level</span>
+<span class="hljs-comment">// `keywords` field, so hljs&#x27;s keyword engine matched them</span>
+<span class="hljs-comment">// anywhere in the document. A sentence like &quot;this document</span>
+<span class="hljs-comment">// is for everyone&quot; would highlight `for` as a keyword and</span>
+<span class="hljs-comment">// &quot;see the table of contents&quot; would highlight `table` as a</span>
+<span class="hljs-comment">// built-in. Wrong: those are markup words.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Each line below contains a word that&#x27;s on the reserved</span>
+<span class="hljs-comment">// list. None of them should be highlighted in markup mode</span>
+<span class="hljs-comment">// (i.e. without a leading `#`).</span>
+
+This is body text under a level-<span class="hljs-number">1</span> heading. The word text
+appears three times here: text, text, text.
+
+A second-level heading follows. The word heading is plain
+text in this sentence.
+
+Body text under level <span class="hljs-number">3</span> — useful for subsections that don&#x27;t
+appear in the auto-generated table of contents.
+
+<span class="hljs-built_in">#emph</span>[Inline emphasis] and <span class="hljs-built_in">#strong</span>[strong text] round out
+the common formatting primitives.
+
+The words emph, strong, text, table, heading, for, in, and,
+or, set, let, show, true, false, none, auto, page, block,
+align, grid, columns, math, ref, cite, list, enum, terms
+are all just text in this paragraph. None of them is
+followed by a `[<span class="hljs-string">...</span>]` or `(<span class="hljs-string">...</span>)` call site, so they are
+not in code mode and should not be highlighted.
+
+A trailing block-quote:
+
+&gt; The set of all sets that do not contain themselves.
+
+The word set here is plain English. The word auto
+here is a regular adjective, not a literal.
+

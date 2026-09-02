@@ -27,6 +27,27 @@ Category: markup
  * blocks, "(...)" group code expressions, "{...}" are code
  * blocks. Strings live in code mode only.
  *
+ * Keywords, literals, and standard-library builtins are
+ * only meaningful in code mode, so each one is matched by
+ * an explicit rule that requires a leading "#" (e.g.
+ * `#let`, `#if`, `#text`, `#heading`, `#true`). They are
+ * NOT listed in the top-level `keywords` field because
+ * hljs's keyword engine would then match them anywhere in
+ * the document, including in plain markup paragraphs where
+ * the same words are just text ("the body text of the
+ * document" - `text` should not be highlighted here).
+ *
+ * Known limitation: code mode is matched positionally, not
+ * with a true balanced-bracket parser. The first reserved
+ * word after `#` gets the keyword/builtin/literal colour,
+ * but a second reserved word inside the same expression
+ * (e.g. `in` in `#for i in range(10)`, `true` in
+ * `#let y = true`) does not. A full implementation would
+ * model code mode as a sub-mode triggered by `#` and ended
+ * by a balanced `]` / `)` / `}` or a `;`, but the regex
+ * machinery doesn't make that easy and the gain is small
+ * for the common case of one-token code after `#`.
+ *
  * The grammar is intentionally incomplete - hljs's regex
  * modes are greedy and a true parser would be hundreds of
  * times bigger. The goal is "make this readable", not "this
@@ -121,11 +142,6 @@ function TYPST_LANGUAGE (hljs) {
     name: 'Typst',
     aliases: ['typst'],
     case_insensitive: false,
-    keywords: {
-      keyword: KEYWORDS,
-      literal: LITERALS,
-      built_in: BUILT_INS,
-    },
     contains: [
       // Line comment (`// ...` to end of line)
       hljs.COMMENT('//', '$', { relevance: 0 }),
@@ -290,10 +306,54 @@ function TYPST_LANGUAGE (hljs) {
         relevance: 0,
       },
 
+      // Code-mode keyword: `#keyword` (e.g. `#if`,
+      // `#for`, `#let`, `#in`, `#and`, `#or`).
+      //
+      // IMPORTANT: keywords/builtins/literals are NOT
+      // listed at the top level of the grammar. Top-level
+      // keyword lists are matched by hljs's keyword engine
+      // anywhere in the document, which means a word like
+      // `text` or `for` in a markup paragraph would get
+      // highlighted as a keyword/builtin. That's wrong:
+      // these are reserved only in code mode (after `#`),
+      // and the same word in markup is just text.
+      //
+      // The fix is to require a `#` prefix and list each
+      // word as an alternation in a `begin` pattern. The
+      // word-boundary `\b` is needed so `#text` doesn't
+      // also match `#textile`.
+      {
+        className: 'keyword',
+        begin: `#(?:${KEYWORDS.join('|')})\\b`,
+        relevance: 0,
+      },
+
+      // Code-mode literal: `#true`, `#false`, `#none`,
+      // `#auto`. Same `#`-prefix rationale as the keyword
+      // rule above.
+      {
+        className: 'literal',
+        begin: `#(?:${LITERALS.join('|')})\\b`,
+        relevance: 0,
+      },
+
+      // Code-mode standard library: `#text`, `#heading`,
+      // `#emph`, `#strong`, etc. Same `#`-prefix
+      // rationale.
+      {
+        className: 'built_in',
+        begin: `#(?:${BUILT_INS.join('|')})\\b`,
+        relevance: 0,
+      },
+
       // Code-mode function call: `#identifier`. The
-      // negative lookahead skips the language keywords and
-      // built-ins so they fall through to the keyword rule
-      // and get their own colour.
+      // negative lookahead skips the language keywords,
+      // literals, and built-ins so they fall through to
+      // their own rules and get their own colour. (The
+      // three rules above would also match first by
+      // position; the lookahead is a small optimisation
+      // that avoids re-matching the same words in the
+      // function rule's regex.)
       {
         className: 'function',
         begin: `#(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*`,
