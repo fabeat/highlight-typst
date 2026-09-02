@@ -21,7 +21,7 @@ A few typographic shorthands: an em-dash <span class="hljs-string">---</span>, a
 and an ellipsis <span class="hljs-string">...</span>
 
 Character escapes let you write a literal <span class="hljs-meta">\#</span> in markup, or
-a literal <span class="hljs-meta">\*</span> asterisk, or a literal <span class="hljs-meta">\[</span> bracket. The
+a literal <span class="hljs-meta">\*</span> asterisk, or a literal \[ bracket. The
 Unicode escape form works too: <span class="hljs-meta">\u{1f600}</span> renders as an emoji.
 
 Cross-references: see <span class="hljs-symbol">@intro</span> on page <span class="hljs-symbol">@syntax</span> for the syntax

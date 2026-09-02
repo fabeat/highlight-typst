@@ -1,0 +1,57 @@
+// Regression test: Unicode letters in identifiers and
+// surrounding markup text must not break the highlighter.
+//
+// Before the unicodeRegex fix, the variable and function
+// rules in code mode used an ASCII-only character class
+// (`[a-zA-Z]`) for identifier matching, so a Typst
+// identifier like `grüße` was matched as `gr` (variable)
+// + `üß` (no rule fired) + `e` (variable). The visual
+// effect: a single identifier was split into 3 spans
+// with a hole in the middle. Setting `unicodeRegex: true`
+// on the language definition turns on the `u` flag on
+// the compiled `beginRe` regex, which makes `\p{L}`
+// (any Unicode letter) match `ö ü ß ä` etc., so the
+// identifier is matched as a single span.
+
+// = Code mode: variable/function calls with non-ASCII
+// letters. These aren't valid Typst identifiers (Typst
+// restricts them to ASCII), but the engine still needs
+// to handle them gracefully so adjacent markup text
+// doesn't get fragmented.
+
+#let grüße = "Hallo"
+#let über = 1
+#let größe = 42
+
+// Content block with non-ASCII letters - the markup
+// text inside `[...]` is plain and must not be
+// highlighted as code-mode tokens.
+#emph[Grüße aus München]
+#text[Schöne Grüße über alles]
+
+// Strings (always Unicode-safe because they're quoted
+// deltas) inside function calls and content blocks.
+#text("Schöne Grüße")
+#emph["über die Berge"]
+
+// = Markup text with non-ASCII letters stays plain.
+// Nothing in these paragraphs should be highlighted as
+// a code-mode variable / keyword / literal / built-in.
+
+= Über die Alpen
+
+Die Vögel fliegen über das Haus. Müller und Bäcker
+trinken Kaffee. Die Straße heißt "Maßstabstraße".
+
+A German pangram: "Falsches Üben von Xylophonmusik
+quält jeden größeren Zwerg." (Scharz, but missing a
+few letters - close enough for testing.)
+
+Eine Mathematik-Vorlesung: ξ² + η² = ρ². Avec des
+caractères français: très élégant, naïve, voilà.
+
+// Escaped `#` is markup, not code mode. The `\#hashtag`
+// here is plain markup; the `false` below is a code
+// literal.
+Sie können ein Hash-Zeichen wie \#hashtag schreiben.
+#let flag = false

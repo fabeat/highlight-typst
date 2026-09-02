@@ -130,7 +130,7 @@ const BUILT_INS = [
   'place', 'rest', 'style', 'vbreak', 'vline',
 ];
 
-/** @param {import('highlight.js').HLJSApi} hljs */
+  /** @param {import('highlight.js').HLJSApi} hljs */
 function typst (hljs) {
   // Union of the three reserved-word lists, used as a
   // negative-lookahead alternation for the function and
@@ -141,6 +141,29 @@ function typst (hljs) {
   const reservedAlt = reservedWords
     .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
+
+  // Unicode-aware identifier matcher. The character class
+  // uses `\p{L}` (any Unicode letter) and `\p{N}` (any
+  // Unicode digit) instead of `[a-zA-Z]` / `[0-9]`, and
+  // the word-boundary lookbehind is `(?<![\p{L}\p{N}_-])`
+  // instead of `(?<!\w)`, so a Typst identifier like
+  // `grüße` is highlighted as a single `variable` span
+  // rather than getting split into `gr` + `üß` (plain)
+  // + `e`. Requires the `u` flag for `\p{...}` property
+  // escapes. Typst itself restricts identifiers to ASCII
+  // letters, digits, `_`, and `-` - we use the broader
+  // Unicode classes so user-defined variables with
+  // non-ASCII letters in markup text don't fall through
+  // the cracks. (In code mode this is mostly cosmetic;
+  // the rules just don't break on adjacent Unicode.)
+  const identifierRe = new RegExp(
+    `(?<![\\p{L}\\p{N}_\\-])(?!${reservedAlt}\\b)[\\p{L}_][\\p{L}\\p{N}_\\-]*`,
+    'u'
+  );
+  const functionCallRe = new RegExp(
+    `(?<![\\p{L}\\p{N}_\\-])(?!${reservedAlt}\\b)[\\p{L}_][\\p{L}\\p{N}_\\-]*(?=\\s*[(\\[{])`,
+    'u'
+  );
 
   // -----------------------------------------------------------------
   // MARKUP MODE: rules that apply at the top level AND inside a
@@ -269,10 +292,17 @@ function typst (hljs) {
     // `\+`, `\/`, `\:`, `\;`, `\'`, `\"`, and the
     // Unicode form `\u{1f600}`. The escaped backslash
     // (`\\`) is a literal `\` and is matched too.
+    // The character class deliberately uses no redundant
+    // escapes (with `unicodeRegex: true` on the
+    // language, the `u` flag is on and `u`-mode is
+    // strict about stray backslashes - so `\\#`,
+    // `\\*`, etc. inside `[...]` would throw "Invalid
+    // escape" at compile time. None of these characters
+    // need escaping inside a character class anyway.
     {
       className: 'meta',
       begin:
-        '\\\\(?:[\\#\\$\\@\\<\\>\\[\\]\\(\\)\\{\\}\\=\\-\\+\\/\\:\\;\\\'\\"\\*]|(?:u\\{[0-9A-Fa-f]+\\}))',
+        '\\\\(?:[#@<>(){}=+\\-\\/:\'";*]|(?:u\\{[0-9A-Fa-f]+\\}))',
       relevance: 0,
     },
 
@@ -345,11 +375,12 @@ function typst (hljs) {
     },
     // Function call: identifier followed by `(`, `[`, or
     // `{` (the three call-site delimiters in Typst). The
-    // negative lookbehind for a word character and the
+    // negative lookbehind for an identifier character
+    // (Unicode letter / digit / `_` / `-`) and the
     // negative lookahead over reserved words together
-    // ensure this only matches at a word boundary AND
-    // skips reserved words, so the keyword engine can
-    // colour them as keyword / literal / built-in
+    // ensure this only matches at an identifier boundary
+    // AND skips reserved words, so the keyword engine
+    // can colour them as keyword / literal / built-in
     // instead. Without the word-boundary lookbehind, the
     // rule would match starting inside a reserved word
     // (e.g. `et` inside `let`), consume the suffix, and
@@ -359,14 +390,14 @@ function typst (hljs) {
     // for the same identifier.
     {
       className: 'function',
-      begin: `(?<!\\w)(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*(?=\\s*[(\\[{])`,
+      match: functionCallRe,
       relevance: 0,
     },
     // Variable: any other identifier. Same
-    // word-boundary + reserved-word exclusion.
+    // identifier-boundary + reserved-word exclusion.
     {
       className: 'variable',
-      begin: `(?<!\\w)(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*`,
+      match: identifierRe,
       relevance: 0,
     },
   ];
@@ -424,6 +455,25 @@ function typst (hljs) {
     name: 'Typst',
     aliases: ['typst'],
     case_insensitive: false,
+    // Enable Unicode-aware regex compilation. hljs only
+    // adds the `u` flag to its internal `beginRe` /
+    // `endRe` if `unicodeRegex` is truthy, so without
+    // this setting, `\p{L}` and `\p{N}` in the function
+    // / variable rules above are silently downgraded to
+    // literal characters and a Typst identifier like
+    // `grüße` falls through to the ASCII-only
+    // character class, splitting it into `gr` (matched
+    // as a variable) + `üß` (no match) + `e` (matched
+    // as a variable). Python, Haskell, and XML also
+    // set this; it's effectively the opt-in for "this
+    // language has identifiers that may contain
+    // non-ASCII letters". Matches the Typst reference
+    // by accepting any Unicode letter in identifiers
+    // (Typst itself only supports ASCII, but the
+    // engine's word-boundary handling needs to be
+    // Unicode-aware so the highlighting doesn't
+    // fragment adjacent to `ö ü ß` etc. in markup).
+    unicodeRegex: true,
     contains: [
       // Top-level markup rules.
       ...markupRules,

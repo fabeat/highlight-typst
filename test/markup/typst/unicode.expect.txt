@@ -1,0 +1,58 @@
+<span class="hljs-comment">// Regression test: Unicode letters in identifiers and</span>
+<span class="hljs-comment">// surrounding markup text must not break the highlighter.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Before the unicodeRegex fix, the variable and function</span>
+<span class="hljs-comment">// rules in code mode used an ASCII-only character class</span>
+<span class="hljs-comment">// (`[a-zA-Z]`) for identifier matching, so a Typst</span>
+<span class="hljs-comment">// identifier like `grüße` was matched as `gr` (variable)</span>
+<span class="hljs-comment">// + `üß` (no rule fired) + `e` (variable). The visual</span>
+<span class="hljs-comment">// effect: a single identifier was split into 3 spans</span>
+<span class="hljs-comment">// with a hole in the middle. Setting `unicodeRegex: true`</span>
+<span class="hljs-comment">// on the language definition turns on the `u` flag on</span>
+<span class="hljs-comment">// the compiled `beginRe` regex, which makes `\p{L}`</span>
+<span class="hljs-comment">// (any Unicode letter) match `ö ü ß ä` etc., so the</span>
+<span class="hljs-comment">// identifier is matched as a single span.</span>
+
+<span class="hljs-comment">// = Code mode: variable/function calls with non-ASCII</span>
+<span class="hljs-comment">// letters. These aren&#x27;t valid Typst identifiers (Typst</span>
+<span class="hljs-comment">// restricts them to ASCII), but the engine still needs</span>
+<span class="hljs-comment">// to handle them gracefully so adjacent markup text</span>
+<span class="hljs-comment">// doesn&#x27;t get fragmented.</span>
+
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">grüße</span> = <span class="hljs-string">&quot;Hallo&quot;</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">über</span> = <span class="hljs-number">1</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">größe</span> = <span class="hljs-number">42</span>
+
+<span class="hljs-comment">// Content block with non-ASCII letters - the markup</span>
+<span class="hljs-comment">// text inside `[...]` is plain and must not be</span>
+<span class="hljs-comment">// highlighted as code-mode tokens.</span>
+#<span class="hljs-built_in">emph</span>[Grüße aus München]
+#<span class="hljs-built_in">text</span>[Schöne Grüße über alles]
+
+<span class="hljs-comment">// Strings (always Unicode-safe because they&#x27;re quoted</span>
+<span class="hljs-comment">// deltas) inside function calls and content blocks.</span>
+#<span class="hljs-built_in">text</span>(<span class="hljs-string">&quot;Schöne Grüße&quot;</span>)
+#<span class="hljs-built_in">emph</span>[<span class="hljs-string">&quot;über die Berge&quot;</span>]
+
+<span class="hljs-comment">// = Markup text with non-ASCII letters stays plain.</span>
+<span class="hljs-comment">// Nothing in these paragraphs should be highlighted as</span>
+<span class="hljs-comment">// a code-mode variable / keyword / literal / built-in.</span>
+
+<span class="hljs-title">= Über die Alpen</span>
+
+Die Vögel fliegen über das Haus. Müller und Bäcker
+trinken Kaffee. Die Straße heißt <span class="hljs-string">&quot;Maßstabstraße&quot;</span>.
+
+A German pangram: <span class="hljs-string">&quot;Falsches Üben von Xylophonmusik
+quält jeden größeren Zwerg.&quot;</span> (Scharz, but missing a
+few letters - close enough for testing.)
+
+Eine Mathematik-Vorlesung: ξ² + η² = ρ². Avec des
+caractères français: très élégant, naïve, voilà.
+
+<span class="hljs-comment">// Escaped `#` is markup, not code mode. The `\#hashtag`</span>
+<span class="hljs-comment">// here is plain markup; the `false` below is a code</span>
+<span class="hljs-comment">// literal.</span>
+Sie können ein Hash-Zeichen wie <span class="hljs-meta">\#</span>hashtag schreiben.
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">flag</span> = <span class="hljs-literal">false</span>
+
