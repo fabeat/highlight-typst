@@ -1,0 +1,19 @@
+<span class="hljs-comment">// Strings: double-quoted, with backslash escapes. Typst</span>
+<span class="hljs-comment">// also supports line-broken strings via a trailing backslash</span>
+<span class="hljs-comment">// (the string continues on the next physical line).</span>
+
+#<span class="hljs-keyword">let</span> s1 = <span class="hljs-string">&quot;hello&quot;</span>
+#<span class="hljs-keyword">let</span> s2 = <span class="hljs-string">&quot;with \&quot;escaped\&quot; quotes&quot;</span>
+#<span class="hljs-keyword">let</span> s3 = <span class="hljs-string">&quot;with a backslash \\ and a tab\ttoo&quot;</span>
+#<span class="hljs-keyword">let</span> s4 = <span class="hljs-string">&quot;line break\
+  continued on the next line&quot;</span>
+#<span class="hljs-keyword">let</span> s5 = <span class="hljs-string">&quot;&quot;</span>  <span class="hljs-comment">// empty string</span>
+#<span class="hljs-keyword">let</span> s6 = <span class="hljs-string">&quot;Unicode: ñ ü 漢字 🎉&quot;</span>
+
+<span class="hljs-comment">// Adjacent strings should not merge into one:</span>
+#<span class="hljs-keyword">let</span> concat = <span class="hljs-string">&quot;foo&quot;</span> + <span class="hljs-string">&quot;bar&quot;</span>
+
+<span class="hljs-comment">// A `&quot;` inside a function-call argument list should not</span>
+<span class="hljs-comment">// confuse the string detector:</span>
+#<span class="hljs-keyword">let</span> greet(<span class="hljs-variable">name</span>) = <span class="hljs-string">&quot;Hello, &quot;</span> + name
+

@@ -1,0 +1,22 @@
+// Comments: line (`// ...`) and block (`/* ... */`).
+// Block comments should not consume more than their closing
+// `*/` and should not be confused with the `/` bullet
+// marker or the `/` in `1/2`.
+
+// line comment to end of line
+#let x = 1 // trailing comment after code
+
+/* single-line block */
+#let y = 2 /* trailing block after code */
+
+/* multi-line
+   block comment
+   with several lines */
+
+#let ratio = 1 /* inline block */ / 2
+
+/* nested-looking content:
+   #let not_actually_code = 1
+   = not a heading
+   should still be plain text
+*/

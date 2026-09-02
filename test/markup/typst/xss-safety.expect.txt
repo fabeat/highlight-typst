@@ -2,10 +2,10 @@
 <span class="hljs-comment">// as escaped text inside spans, not as raw markup that could</span>
 <span class="hljs-comment">// break out of the highlight wrapper and execute.</span>
 
-#<span class="hljs-keyword">let</span> user<span class="hljs-emphasis">_input = &quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;
-#let img_</span><span class="hljs-keyword">in</span><span class="hljs-emphasis">_text = &quot;Hello &lt;img src=x onerror=alert(1)&gt; world&quot;
+#<span class="hljs-keyword">let</span> user_input = <span class="hljs-string">&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;</span>
+#<span class="hljs-keyword">let</span> img_in_text = <span class="hljs-string">&quot;Hello &lt;img src=x onerror=alert(1)&gt; world&quot;</span>
 
-The user wrote: *&lt;script&gt;alert(1)&lt;/script&gt;* in markup.
+The user wrote: <span class="hljs-emphasis">*&lt;script&gt;alert(1)&lt;/script&gt;*</span> <span class="hljs-keyword">in</span> markup.
 
-Number: &lt;script&gt;not a script&lt;/script&gt;
-</span>
+Number: &lt;script&gt;<span class="hljs-keyword">not</span> a script&lt;/script&gt;
+

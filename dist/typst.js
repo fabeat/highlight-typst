@@ -155,25 +155,27 @@ var hljsTypst = (function () {
         // The same shape for *, _, and ~: `marker` followed by
         // a non-marker non-space char, ending with the same
         // pair reversed. The negative lookbehind on the begin
-        // prevents `**` (and similar) from being treated as
-        // two emphases; the negative lookahead on the end
-        // prevents `**foo**` (with adjacent markers) from
-        // matching as `*` then `*foo*`.
+        // excludes the marker chars AND any word character so
+        // a marker inside an identifier (e.g. `var_name` or
+        // `var*foo`) doesn't get misread as emphasis start.
+        // The negative lookahead on the end prevents `**foo**`
+        // (with adjacent markers) from matching as `*` then
+        // `*foo*`.
         {
           className: 'emphasis',
-          begin: '(?<![*_~])\\*[^*\\s]',
+          begin: '(?<![*_~\\w])\\*[^*\\s]',
           end: '[^*\\s]\\*(?![*_~])',
           relevance: 0,
         },
         {
           className: 'emphasis',
-          begin: '(?<![*_~])_[^_\\s]',
+          begin: '(?<![*_~\\w])_[^_\\s]',
           end: '[^_\\s]_(?![*_~])',
           relevance: 0,
         },
         {
           className: 'emphasis',
-          begin: '(?<!~)~[^~\\s]',
+          begin: '(?<![*_~\\w])~[^~\\s]',
           end: '[^~\\s]~(?!~)',
           relevance: 0,
         },

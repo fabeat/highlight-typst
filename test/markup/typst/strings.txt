@@ -1,0 +1,18 @@
+// Strings: double-quoted, with backslash escapes. Typst
+// also supports line-broken strings via a trailing backslash
+// (the string continues on the next physical line).
+
+#let s1 = "hello"
+#let s2 = "with \"escaped\" quotes"
+#let s3 = "with a backslash \\ and a tab\ttoo"
+#let s4 = "line break\
+  continued on the next line"
+#let s5 = ""  // empty string
+#let s6 = "Unicode: ñ ü 漢字 🎉"
+
+// Adjacent strings should not merge into one:
+#let concat = "foo" + "bar"
+
+// A `"` inside a function-call argument list should not
+// confuse the string detector:
+#let greet(name) = "Hello, " + name

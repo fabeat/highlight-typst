@@ -1,0 +1,54 @@
+// Built-in standard library functions. The grammar's
+// built_in list covers ~65 functions; this test exercises
+// the ones not already covered in the `default` / `invoice`
+// fixtures so a regression in any of them is caught.
+
+#align(center)[centered]
+#align(left + horizon)[two-axis]
+
+#block(fill: red, width: 100%)[a block]
+#box(width: 1em)[a box]
+
+#stack(dir: ltr, spacing: 1em)[a][b][c]
+#grid(columns: (1fr, 1fr), [a], [b])
+
+#table(
+  columns: 3,
+  [a], [b], [c],
+)
+
+#image("photo.png", width: 80%)
+
+#figure(
+  image("chart.png"),
+  caption: [A chart],
+)
+
+#link("https://typst.app")[Typst]
+
+#raw("monospace `code`", lang: "typst")
+
+#emph([italic])
+#strong([bold])
+#underline([underlined])
+#strike([struck])
+#highlight(fill: yellow)[highlighted]
+
+#quote(block: true)[a quotation]
+
+#footnote[see page 42]
+
+#cite(<key>, form: "prose")
+#bibliography("refs.bib")
+
+#list([a], [b], [c])
+#enum[first][second][third]
+#terms[Term 1: Definition 1][Term 2: Definition 2]
+
+#outline(title: [Contents], depth: 2)
+
+#counter("section").step()
+#state("key").update(1)
+#query(<label>)
+#locate(<label>)
+#selector([heading])

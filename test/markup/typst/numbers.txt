@@ -1,0 +1,27 @@
+// Numbers: plain, decimal, scientific, and every unit
+// suffix the grammar recognises. The grammar's number
+// pattern is:
+//   \b\d+(\.\d+)?(e[+-]?\d+)?(pt|mm|cm|in|em|rem|px|deg|rad|fr|%)?\b
+
+#let plain = 42
+#let decimal = 3.14
+#let sci = 1.5e3
+#let sci_signed = 2.5e-10
+
+#let pt = 12pt
+#let mm = 25.4mm
+#let cm = 2.5cm
+#let inches = 1in
+#let em = 1.5em
+#let rem = 2rem
+#let px = 720px
+
+#let deg = 90deg
+#let rad = 3.14rad
+
+#let grid_unit = 1fr
+#let percent = 50%
+
+// Numbers inside larger expressions should still tokenise:
+#let sum = 1 + 2.5 * 3
+#let ratio = (12pt / 1em) * 100%

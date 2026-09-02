@@ -1,0 +1,23 @@
+<span class="hljs-comment">// Comments: line (`// ...`) and block (`/* ... */`).</span>
+<span class="hljs-comment">// Block comments should not consume more than their closing</span>
+<span class="hljs-comment">// `*/` and should not be confused with the `/` bullet</span>
+<span class="hljs-comment">// marker or the `/` in `1/2`.</span>
+
+<span class="hljs-comment">// line comment to end of line</span>
+#<span class="hljs-keyword">let</span> x = <span class="hljs-number">1</span> <span class="hljs-comment">// trailing comment after code</span>
+
+<span class="hljs-comment">/* single-line block */</span>
+#<span class="hljs-keyword">let</span> y = <span class="hljs-number">2</span> <span class="hljs-comment">/* trailing block after code */</span>
+
+<span class="hljs-comment">/* multi-line
+   block comment
+   with several lines */</span>
+
+#<span class="hljs-keyword">let</span> ratio = <span class="hljs-number">1</span> <span class="hljs-comment">/* inline block */</span> / <span class="hljs-number">2</span>
+
+<span class="hljs-comment">/* nested-looking content:
+   #let not_actually_code = 1
+   = not a heading
+   should still be plain text
+*/</span>
+

@@ -1,0 +1,52 @@
+<span class="hljs-comment">// Cover every keyword + literal. The grammar&#x27;s keyword list</span>
+<span class="hljs-comment">// is the union of KEYWORDS, LITERALS, and BUILT_INS, but the</span>
+<span class="hljs-comment">// function-call rule uses a negative lookahead over the union</span>
+<span class="hljs-comment">// to ensure keywords/literals/built-ins get their own colour</span>
+<span class="hljs-comment">// instead of being painted as a plain function call. This</span>
+<span class="hljs-comment">// test guards against that lookup table drifting.</span>
+
+#<span class="hljs-keyword">let</span> x = <span class="hljs-number">1</span>
+#<span class="hljs-keyword">let</span> y = <span class="hljs-literal">true</span>
+#<span class="hljs-keyword">let</span> z = <span class="hljs-literal">false</span>
+#<span class="hljs-keyword">let</span> n = <span class="hljs-literal">none</span>
+#<span class="hljs-keyword">let</span> a = <span class="hljs-literal">auto</span>
+
+#<span class="hljs-keyword">if</span> x &gt; <span class="hljs-number">0</span> [
+  positive
+] <span class="hljs-keyword">else</span> [
+  negative
+]
+
+#<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">5</span>) {
+  [<span class="hljs-function">#i</span>]
+}
+
+#<span class="hljs-keyword">while</span> x &lt; <span class="hljs-number">10</span> {
+  x = x + <span class="hljs-number">1</span>
+}
+
+#<span class="hljs-keyword">let</span> loop = <span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> range(<span class="hljs-number">3</span>) {
+  <span class="hljs-keyword">if</span> n == <span class="hljs-number">1</span> { <span class="hljs-keyword">continue</span> }
+  <span class="hljs-keyword">if</span> n == <span class="hljs-number">2</span> { <span class="hljs-keyword">break</span> }
+  n
+}
+
+#<span class="hljs-keyword">let</span> f = (<span class="hljs-variable">x</span>) =&gt; {
+  <span class="hljs-keyword">if</span> x == <span class="hljs-number">0</span> { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span> }
+  x
+}
+
+#<span class="hljs-keyword">import</span> <span class="hljs-string">&quot;module.typ&quot;</span>: thing, other
+#<span class="hljs-keyword">import</span> <span class="hljs-string">&quot;module.typ&quot;</span> <span class="hljs-keyword">as</span> mod
+#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;snippet.typ&quot;</span>
+
+#<span class="hljs-keyword">let</span> r = <span class="hljs-keyword">not</span> <span class="hljs-literal">true</span>
+#<span class="hljs-keyword">let</span> flag = <span class="hljs-literal">true</span> <span class="hljs-keyword">and</span> <span class="hljs-literal">false</span>
+#<span class="hljs-keyword">let</span> either = <span class="hljs-literal">true</span> <span class="hljs-keyword">or</span> <span class="hljs-literal">false</span>
+
+#<span class="hljs-keyword">set</span> <span class="hljs-built_in">text</span>(<span class="hljs-number">10pt</span>)
+#<span class="hljs-keyword">show</span> heading: it =&gt; <span class="hljs-built_in">block</span>(<span class="hljs-variable">it</span>)
+#<span class="hljs-keyword">context</span> {
+  <span class="hljs-keyword">let</span> m = <span class="hljs-built_in">measure</span>(<span class="hljs-built_in">box</span>(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>, height: <span class="hljs-number">1em</span>))
+}
+

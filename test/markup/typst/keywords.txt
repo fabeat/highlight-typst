@@ -1,0 +1,51 @@
+// Cover every keyword + literal. The grammar's keyword list
+// is the union of KEYWORDS, LITERALS, and BUILT_INS, but the
+// function-call rule uses a negative lookahead over the union
+// to ensure keywords/literals/built-ins get their own colour
+// instead of being painted as a plain function call. This
+// test guards against that lookup table drifting.
+
+#let x = 1
+#let y = true
+#let z = false
+#let n = none
+#let a = auto
+
+#if x > 0 [
+  positive
+] else [
+  negative
+]
+
+#for i in range(5) {
+  [#i]
+}
+
+#while x < 10 {
+  x = x + 1
+}
+
+#let loop = for n in range(3) {
+  if n == 1 { continue }
+  if n == 2 { break }
+  n
+}
+
+#let f = (x) => {
+  if x == 0 { return 0 }
+  x
+}
+
+#import "module.typ": thing, other
+#import "module.typ" as mod
+#include "snippet.typ"
+
+#let r = not true
+#let flag = true and false
+#let either = true or false
+
+#set text(10pt)
+#show heading: it => block(it)
+#context {
+  let m = measure(box(width: 1em, height: 1em))
+}
