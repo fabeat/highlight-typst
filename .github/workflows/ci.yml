@@ -42,6 +42,30 @@ jobs:
         # in the dist/ tree regardless of whether tests pass.
         run: npm run build
 
+      - name: Drift check (dist/ matches src/)
+        # This package commits dist/ (see .gitignore for the
+        # rationale: npm publish, CDN URLs, test reproducibility).
+        # That means a contributor who edits src/ and forgets
+        # to rebuild and commit the dist changes would push a
+        # broken package. This step catches that case by
+        # checking that the freshly built dist/ matches the
+        # committed one.
+        #
+        # `git diff --exit-code` exits 1 if there are any
+        # differences (and prints them to stdout for the
+        # Actions log), 0 if clean. We negate it so the step
+        # fails when there ARE differences. The leading
+        # `::error::` is a GitHub Actions annotation that
+        # shows up as a red ✕ in the PR's "Files changed"
+        # view.
+        run: |
+          if git diff --exit-code dist/; then
+            echo "dist/ is in sync with src/."
+          else
+            echo "::error::dist/ is out of sync with src/. Run 'npm run build' locally and commit the regenerated dist/ files."
+            exit 1
+          fi
+
       - name: Test
         # `npm test` invokes the `pretest` script (which runs
         # `npm run build`) and then `mocha` against the

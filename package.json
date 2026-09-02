@@ -51,6 +51,7 @@
     "build": "rollup -c",
     "pretest": "npm run build",
     "test": "mocha",
-    "test:markup": "npm test"
+    "test:markup": "npm test",
+    "check:drift": "npm run build && git diff --exit-code dist/ || (echo '::error::dist/ is out of sync with src/. Run \"npm run build\" and commit the regenerated files.' && exit 1)"
   }
 }

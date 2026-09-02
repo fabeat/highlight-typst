@@ -160,6 +160,22 @@ files after a deliberate grammar change, delete the affected
 `.expect.txt` and re-run `node scripts/bootstrap-expects.mjs`,
 then visually inspect the new output before committing.
 
+### Drift check
+
+Because `dist/` is committed (see `.gitignore` for the
+rationale), a source change has to be paired with a rebuilt
+`dist/`. The CI's `Drift check` step catches the case where
+you forget; locally you can run the same check with:
+
+```bash
+npm run check:drift
+```
+
+This rebuilds and fails if the freshly built `dist/` differs
+from what's in git, printing the diff and a one-line
+instruction. Run it before `git commit` (or wire it into a
+pre-commit hook) to avoid the CI round-trip.
+
 ## License
 
 MIT. See [LICENSE](./LICENSE).
