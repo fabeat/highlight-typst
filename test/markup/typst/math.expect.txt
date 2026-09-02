@@ -26,7 +26,7 @@ $ E = m c^<span class="hljs-number">2</span> $
 
 And a multi-line block:
 
-$ sum_(<span class="hljs-variable">i</span>=<span class="hljs-number">1</span>)^n i = (n (n+<span class="hljs-number">1</span>)) / <span class="hljs-number">2</span> $
+$ sum_(i=<span class="hljs-number">1</span>)^n i = (n (n+<span class="hljs-number">1</span>)) / <span class="hljs-number">2</span> $
 
 Inline math with a Typst code reference: <span class="hljs-meta">$f(x) = #f(0)$</span>.
 

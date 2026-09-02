@@ -3,10 +3,10 @@
 
 This is rendered by <span class="hljs-emphasis">*ext-typst*</span> via the plugin.
 
-<span class="hljs-keyword">#let</span> name = <span class="hljs-string">&quot;World&quot;</span>
-<span class="hljs-keyword">#let</span> greeting = [Hello, <span class="hljs-function">#name</span>!]
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">name</span> = <span class="hljs-string">&quot;World&quot;</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">greeting</span> = [Hello, #name!]
 
-<span class="hljs-function">#greeting</span>
+#<span class="hljs-variable">greeting</span>
 
 <span class="hljs-title">== Section</span>
 
@@ -18,11 +18,11 @@ This is rendered by <span class="hljs-emphasis">*ext-typst*</span> via the plugi
 
 `Inline code` and <span class="hljs-emphasis">*strong*</span> and <span class="hljs-emphasis">_emphasis_</span> and <span class="hljs-emphasis">~subscript~</span>.
 
-<span class="hljs-keyword">#let</span> nums = (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>)
-<span class="hljs-keyword">#let</span> total = nums.fold(<span class="hljs-number">0</span>, (<span class="hljs-variable">acc</span>, n) =&gt; acc + n)
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">nums</span> = (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>)
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">total</span> = <span class="hljs-variable">nums</span>.<span class="hljs-function">fold</span>(<span class="hljs-number">0</span>, (<span class="hljs-variable">acc</span>, <span class="hljs-variable">n</span>) =&gt; <span class="hljs-variable">acc</span> + <span class="hljs-variable">n</span>)
 
-Total: <span class="hljs-function">#total</span>.
+Total: #<span class="hljs-variable">total</span>.
 
-<span class="hljs-keyword">#set</span> text(<span class="hljs-variable">size</span>: <span class="hljs-number">12pt</span>)
-<span class="hljs-built_in">#align</span>(<span class="hljs-variable">center</span>)[Centered text]
+#<span class="hljs-keyword">set</span> <span class="hljs-built_in">text</span>(<span class="hljs-variable">size</span>: <span class="hljs-number">12pt</span>)
+#<span class="hljs-built_in">align</span>(<span class="hljs-variable">center</span>)[Centered text]
 

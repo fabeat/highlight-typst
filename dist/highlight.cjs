@@ -8,7 +8,7 @@ var hljs = require('highlight.js/lib/core');
 Language: Typst
 Requires: highlight.js >= 11
 Author: fabeat
-Description: Typst markup + code hybrid. Covers comments, double-quoted strings, numbers (with unit suffixes), markup headings, list/term/enum markers, strong/emph/sub/sup markup, code-mode function calls, keywords, literals, the standard library, labels, references, character escapes, em-dash, ellipsis, and inline/block math. Sourced from the official Typst reference at https://typst.app/docs/reference/.
+Description: Typst markup + code hybrid with three top-level modes (markup, code, math). Markup is the default; code is triggered by a leading "#" and contains keywords, builtins, literals, function calls, balanced (...) and {...} expressions, and content blocks "[...]" that switch back to markup; math is "$...$". Comments, strings, numbers, headings, lists, emphasis, escapes, labels, references, em-dash, and ellipsis are recognised. Sourced from the official Typst reference at https://typst.app/docs/reference/.
 Website: https://typst.app/
 Category: markup
 */
@@ -21,39 +21,41 @@ Category: markup
  * literal, and built-in lists match the standard library the
  * way the docs describe it.
  *
- * Typst is a markup-and-code hybrid: documents start in
- * markup mode (e.g. an "=" heading, an "*emphasis*" span, a
- * "- list" item) and switch into code mode when the author
- * types "#" (e.g. "#let x = 1", "#if cond { ... }"). Markup
- * and code can be nested via brackets: "[...]" are content
- * blocks, "(...)" group code expressions, "{...}" are code
- * blocks. Strings live in code mode only.
+ * Typst is a three-mode language, modelled here with
+ * three sub-grammars:
  *
- * Keywords, literals, and standard-library builtins are
- * only meaningful in code mode, so each one is matched by
- * an explicit rule that requires a leading "#" (e.g.
- * `#let`, `#if`, `#text`, `#heading`, `#true`). They are
- * NOT listed in the top-level `keywords` field because
- * hljs's keyword engine would then match them anywhere in
- * the document, including in plain markup paragraphs where
- * the same words are just text ("the body text of the
- * document" - `text` should not be highlighted here).
+ *   - MARKUP MODE (the default at the top level and inside
+ *     content blocks). Plain text, headings (`= Title`),
+ *     lists, emphasis (`*foo*`, `_foo_`, `**foo**`,
+ *     `__foo__`), sub/superscript (`~foo~`), character
+ *     escapes (`\#`, `\*`, `\[`, etc.), labels (`<foo>`),
+ *     references (`@foo`), em-dash (`---`), ellipsis
+ *     (`...`). NO keyword/builtin/literal highlighting
+ *     here: a word like `text` in a markup paragraph is
+ *     just text, not a function call.
  *
- * Known limitation: code mode is matched positionally, not
- * with a true balanced-bracket parser. The first reserved
- * word after `#` gets the keyword/builtin/literal colour,
- * but a second reserved word inside the same expression
- * (e.g. `in` in `#for i in range(10)`, `true` in
- * `#let y = true`) does not. A full implementation would
- * model code mode as a sub-mode triggered by `#` and ended
- * by a balanced `]` / `)` / `}` or a `;`, but the regex
- * machinery doesn't make that easy and the gain is small
- * for the common case of one-token code after `#`.
+ *   - CODE MODE (triggered by a leading `#` that isn't an
+ *     escape `\#`). The `#` is followed by an expression
+ *     that may contain: keywords (`let`, `if`, `for`, ...),
+ *     literals (`true`, `false`, `none`, `auto`), the
+ *     standard library (`text`, `heading`, `emph`, ...),
+ *     user-defined function calls, balanced `(...)` and
+ *     `{...}` sub-expressions, and `[...]` content blocks
+ *     that switch back to markup. Ends at `;`, end of line,
+ *     or end of file.
+ *
+ *   - MATH MODE (triggered by `$...$`, with the inline and
+ *     block variants sharing the same end pattern). Inside
+ *     math, only the markup-level rules apply - we don't
+ *     try to parse math syntax beyond recognising the
+ *     delimiters. `$x^2$` is highlighted as a single
+ *     `<span class="hljs-meta">` span.
  *
  * The grammar is intentionally incomplete - hljs's regex
  * modes are greedy and a true parser would be hundreds of
  * times bigger. The goal is "make this readable", not "this
- * is the Typst grammar".
+ * is the Typst grammar". See the design notes for the
+ * specific limitations.
  *
  * Notable omissions (each is a deliberate trade-off):
  *   - Smart quotes: '...' and "..." are 2-3 chars wide each;
@@ -71,6 +73,8 @@ Category: markup
  *
  * References:
  *   - Typst reference: https://typst.app/docs/reference/
+ *   - Tinymist (the reference VSCode highlighter, uses
+ *     tree-sitter): https://github.com/Myriad-Dreamin/tinymist
  *   - hljs custom-language docs:
  *     https://highlightjs.readthedocs.io/en/latest/mode-reference.html
  */
@@ -133,244 +137,317 @@ const BUILT_INS = [
 /** @param {import('highlight.js').HLJSApi} hljs */
 function TYPST_LANGUAGE (hljs) {
   // Union of the three reserved-word lists, used as a
-  // negative-lookahead alternation for the function-call rule
-  // so it doesn't steal colouring from keyword/built-in rules.
+  // negative-lookahead alternation for the function and
+  // variable rules inside code mode so they don't
+  // double-paint words that the keyword engine is about
+  // to colour as a keyword / literal / built-in.
   const reservedWords = [...KEYWORDS, ...LITERALS, ...BUILT_INS];
   const reservedAlt = reservedWords
     .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
+
+  // -----------------------------------------------------------------
+  // MARKUP MODE: rules that apply at the top level AND inside a
+  // content block `[...]`. No code-mode entry, no top-level
+  // keywords. Plain text, structural markup, and math.
+  // -----------------------------------------------------------------
+  const markupRules = [
+    // Line comment (`// ...` to end of line).
+    hljs.COMMENT('//', '$', { relevance: 0 }),
+
+    // Block comment (`/* ... */`).
+    hljs.COMMENT('/\\*', '\\*/', { relevance: 0 }),
+
+    // Strings (double-quoted, with backslash escapes).
+    // Typst also supports line-broken strings via a
+    // backslash at end of line.
+    {
+      className: 'string',
+      begin: '"',
+      end: '"',
+      contains: [{ begin: '\\\\(?:.|$)' }],
+      relevance: 0,
+    },
+
+    // Numbers with optional unit suffix.
+    //   42, 3.14, 1e3, 50%, 12pt, 1.5em, 90deg
+    {
+      className: 'number',
+      begin:
+        '\\b\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(?:pt|mm|cm|in|em|rem|px|deg|rad|fr|%)?\\b',
+      relevance: 0,
+    },
+
+    // Markup-mode section headings at line start:
+    // `=`, `==`, `===` (up to 5).
+    {
+      className: 'title',
+      begin: '^={1,5}\\s',
+      end: '$',
+      relevance: 0,
+      contains: [{ className: 'meta', begin: '^={1,5}' }],
+    },
+
+    // Markup-mode list markers at line start:
+    //   - foo       bullet list
+    //   + foo       numbered list
+    //   / **Term**: description   term list
+    {
+      className: 'bullet',
+      begin: '^[+\\-/]\\s',
+      relevance: 0,
+    },
+
+    // Block math: `$$ ... $$`. Whitespace padding around
+    // the content is the standard Typst convention for
+    // display math, but the rule is intentionally lenient.
+    {
+      className: 'meta',
+      begin: '\\$\\$',
+      end: '\\$\\$',
+      contains: [{ className: 'string', begin: '\\$', end: '\\$' }],
+    },
+
+    // Inline math: `$x$`. Strict begin: `$` not preceded by
+    // a word char, not preceded by another `$` (to skip
+    // `$$`). Strict end: `$` not followed by a digit or
+    // letter (so `100$` or `var$` don't match). This
+    // means `$#var$` (Typst syntax inside math) still
+    // works because `$` is at a word boundary, and
+    // `*$#var*` in markup is safe because the `$` is
+    // preceded by `*` (which is a word boundary for our
+    // purposes).
+    {
+      className: 'meta',
+      begin: '(?<!\\w)\\$\\S',
+      end: '\\S\\$(?!\\w)',
+      relevance: 0,
+    },
+
+    // Markup-mode strong emphasis: `**foo**` and `__foo__`.
+    // These come BEFORE the single-marker rules so a `**`
+    // pair wins over two adjacent `*` emphases.
+    {
+      className: 'strong',
+      begin: '(?<![*_~\\w])\\*\\*[^*\\s]',
+      end: '[^*\\s]\\*\\*(?![*_~])',
+      relevance: 0,
+    },
+    {
+      className: 'strong',
+      begin: '(?<![*_~\\w])__[^_\\s]',
+      end: '[^_\\s]__(?![*_~])',
+      relevance: 0,
+    },
+
+    // Markup-mode emphasis: `*foo*` and `_foo_`.
+    // Lookbehind excludes `*_~` and word chars so a marker
+    // inside an identifier (`var_name`, `var*foo`) doesn't
+    // get misread as emphasis start.
+    {
+      className: 'emphasis',
+      begin: '(?<![*_~\\w])\\*[^*\\s]',
+      end: '[^*\\s]\\*(?![*_~])',
+      relevance: 0,
+    },
+    {
+      className: 'emphasis',
+      begin: '(?<![*_~\\w])_[^_\\s]',
+      end: '[^_\\s]_(?![*_~])',
+      relevance: 0,
+    },
+
+    // Sub/superscript markup: `~foo~`. The single `~`
+    // shorthand is a non-breaking space in markup; the
+    // emphasis rule needs a pair of `~`s with non-space
+    // content between them.
+    {
+      className: 'emphasis',
+      begin: '(?<![*_~\\w])~[^~\\s]',
+      end: '[^~\\s]~(?!~)',
+      relevance: 0,
+    },
+
+    // Character escape: `\#`, `\*`, `\_`, `\$`, `\@`, `\<`,
+    // `\>`, `\[`, `\]`, `\(`, `\)`, `\{`, `\}`, `\=`, `\-`,
+    // `\+`, `\/`, `\:`, `\;`, `\'`, `\"`, and the
+    // Unicode form `\u{1f600}`. The escaped backslash
+    // (`\\`) is a literal `\` and is matched too.
+    {
+      className: 'meta',
+      begin:
+        '\\\\(?:[\\#\\$\\@\\<\\>\\[\\]\\(\\)\\{\\}\\=\\-\\+\\/\\:\\;\\\'\\"\\*]|(?:u\\{[0-9A-Fa-f]+\\}))',
+      relevance: 0,
+    },
+
+    // Label reference target: `<identifier>` (or
+    // `<namespace:label>`). Must be at a word boundary
+    // (preceded by whitespace, start of line, or
+    // punctuation) so the `if a < b` less-than isn't
+    // misread.
+    {
+      className: 'symbol',
+      begin:
+        '(?:^|(?<=[\\s\\(\\[\\{,;]))<[a-zA-Z_][a-zA-Z0-9_\\-]*(?::[a-zA-Z_][a-zA-Z0-9_\\-]*)?>',
+      relevance: 0,
+    },
+
+    // Label reference use site: `@identifier` (or
+    // `@namespace:label`).
+    {
+      className: 'symbol',
+      begin:
+        '(?:^|(?<=[\\s\\(\\[\\{,;]))@[a-zA-Z_][a-zA-Z0-9_\\-]*(?::[a-zA-Z_][a-zA-Z0-9_\\-]*)?',
+      relevance: 0,
+    },
+
+    // Em-dash (`---`) and ellipsis (`...`). En-dash (`--`)
+    // is omitted to avoid clashing with two adjacent `-`
+    // characters in an argument list.
+    {
+      className: 'string',
+      begin: '---',
+      relevance: 0,
+    },
+    {
+      className: 'string',
+      begin: '\\.\\.\\.',
+      relevance: 0,
+    },
+  ];
+
+  // -----------------------------------------------------------------
+  // CODE MODE: rules that apply inside `#`-prefixed expressions
+  // and inside the `(...)` / `{...}` sub-expressions of a code
+  // expression. Each sub-mode has its own `keywords` field so
+  // the keyword engine runs in the correct scope.
+  // -----------------------------------------------------------------
+  const codeKeywords = {
+    keyword: KEYWORDS,
+    literal: LITERALS,
+    built_in: BUILT_INS,
+  };
+
+  // The "atomic" rules that apply at any code-mode depth
+  // (top-level code, parens, braces). Comments, strings,
+  // numbers, and the two identifier rules.
+  const codeAtomRules = [
+    hljs.COMMENT('//', '$', { relevance: 0 }),
+    hljs.COMMENT('/\\*', '\\*/', { relevance: 0 }),
+    {
+      className: 'string',
+      begin: '"',
+      end: '"',
+      contains: [{ begin: '\\\\(?:.|$)' }],
+      relevance: 0,
+    },
+    {
+      className: 'number',
+      begin:
+        '\\b\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(?:pt|mm|cm|in|em|rem|px|deg|rad|fr|%)?\\b',
+      relevance: 0,
+    },
+    // Function call: identifier followed by `(`, `[`, or
+    // `{` (the three call-site delimiters in Typst). The
+    // negative lookbehind for a word character and the
+    // negative lookahead over reserved words together
+    // ensure this only matches at a word boundary AND
+    // skips reserved words, so the keyword engine can
+    // colour them as keyword / literal / built-in
+    // instead. Without the word-boundary lookbehind, the
+    // rule would match starting inside a reserved word
+    // (e.g. `et` inside `let`), consume the suffix, and
+    // prevent the keyword engine from seeing the full
+    // word. Must come before the `variable` rule so a
+    // function call wins over a plain variable match
+    // for the same identifier.
+    {
+      className: 'function',
+      begin: `(?<!\\w)(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*(?=\\s*[(\\[{])`,
+      relevance: 0,
+    },
+    // Variable: any other identifier. Same
+    // word-boundary + reserved-word exclusion.
+    {
+      className: 'variable',
+      begin: `(?<!\\w)(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*`,
+      relevance: 0,
+    },
+  ];
+
+  // Balanced parens `(...)` - code inside code. The `'self'`
+  // reference allows nested parens, and the `codeAtomRules`
+  // are duplicated for this scope. `keywords` is the same
+  // as the outer code mode.
+  const parensMode = {
+    begin: '\\(',
+    end: '\\)',
+    keywords: codeKeywords,
+    contains: ['self', ...codeAtomRules],
+  };
+
+  // Balanced braces `{...}` - same as parens.
+  const bracesMode = {
+    begin: '\\{',
+    end: '\\}',
+    keywords: codeKeywords,
+    contains: ['self', ...codeAtomRules],
+  };
+
+  // -----------------------------------------------------------------
+  // CONTENT BLOCK `[...]` - markup inside code. The bracket
+  // pair surrounds a markup expression, so we re-enter
+  // markup mode here. `endsParent: true` (NOT to be
+  // confused with `endsWithParent`, which is the opposite
+  // - it makes the sub-mode end when the parent ends)
+  // means that when the content block's closing `]`
+  // matches, the content block AND its parent (the code
+  // mode) both end. This is what makes
+  // `#emph[Hello] and more text` correctly switch back to
+  // markup after the `]`, instead of leaving `and more
+  // text` inside the code mode where `and` would be
+  // highlighted as a keyword.
+  //
+  // Limitation: nested content blocks like
+  // `#text[outer [inner] more]` are not handled
+  // correctly - the inner `]` ends both the inner and
+  // outer content blocks plus the code mode, leaving the
+  // outer content block's `]` and `more` unparsed. This
+  // is rare enough in practice to accept the trade-off.
+  // A proper parser (e.g. Tinymist) handles this with
+  // full expression-level bracket tracking.
+  // -----------------------------------------------------------------
+  const contentBlockMode = {
+    begin: '\\[',
+    end: '\\]',
+    endsParent: true,
+    contains: [...markupRules],
+  };
 
   return {
     name: 'Typst',
     aliases: ['typst'],
     case_insensitive: false,
     contains: [
-      // Line comment (`// ...` to end of line)
-      hljs.COMMENT('//', '$', { relevance: 0 }),
+      // Top-level markup rules.
+      ...markupRules,
 
-      // Block comment (`/* ... */`)
-      hljs.COMMENT('/\\*', '\\*/', { relevance: 0 }),
-
-      // Strings (double-quoted, with backslash escapes).
-      // Typst also supports line-broken strings via a
-      // backslash at end of line.
+      // CODE MODE entry: a `#` that isn't an escape (`\#`)
+      // starts a code expression. Ends at `;`, end of line,
+      // or end of file. Balanced brackets inside the
+      // expression are handled by the `parensMode` /
+      // `bracesMode` sub-modes; a `[...]` content block
+      // switches back to markup via `contentBlockMode`.
       {
-        className: 'string',
-        begin: '"',
-        end: '"',
-        contains: [{ begin: '\\\\(?:.|$)' }],
-        relevance: 0,
-      },
-
-      // Numbers with optional unit suffix.
-      //   42, 3.14, 1e3, 50%, 12pt, 1.5em, 90deg
-      {
-        className: 'number',
-        begin:
-          '\\b\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(?:pt|mm|cm|in|em|rem|px|deg|rad|fr|%)?\\b',
-        relevance: 0,
-      },
-
-      // Markup-mode section headings at line start:
-      // `=`, `==`, `===` (up to 5).
-      {
-        className: 'title',
-        begin: '^={1,5}\\s',
-        end: '$',
-        relevance: 0,
-        contains: [{ className: 'meta', begin: '^={1,5}' }],
-      },
-
-      // Markup-mode list markers at line start:
-      //   - foo       bullet list
-      //   + foo       numbered list
-      //   / **Term**: description   term list
-      {
-        className: 'bullet',
-        begin: '^[+\\-/]\\s',
-        relevance: 0,
-      },
-
-      // Block math: `$$ ... $$`. Whitespace padding around
-      // the content is the standard Typst convention for
-      // display math, but the rule is intentionally lenient.
-      {
-        className: 'meta',
-        begin: '\\$\\$',
-        end: '\\$\\$',
-        contains: [{ className: 'string', begin: '\\$', end: '\\$' }],
-      },
-
-      // Inline math: `$x$`. Strict begin: `$` not preceded by
-      // a word char, not preceded by another `$` (to skip
-      // `$$`). Strict end: `$` not followed by a digit or
-      // letter (so `100$` or `var$` don't match). This
-      // means `$#var$` (Typst syntax inside math) still
-      // works because `$` is at a word boundary, and
-      // `*$#var*` in markup is safe because the `$` is
-      // preceded by `*` (which is a word boundary for our
-      // purposes).
-      {
-        className: 'meta',
-        begin: '(?<!\\w)\\$\\S',
-        end: '\\S\\$(?!\\w)',
-        relevance: 0,
-      },
-
-      // Markup-mode strong emphasis: `**foo**` and `__foo__`.
-      // These come BEFORE the single-marker rules so a `**`
-      // pair wins over two adjacent `*` emphases.
-      {
-        className: 'strong',
-        begin: '(?<![*_~\\w])\\*\\*[^*\\s]',
-        end: '[^*\\s]\\*\\*(?![*_~])',
-        relevance: 0,
-      },
-      {
-        className: 'strong',
-        begin: '(?<![*_~\\w])__[^_\\s]',
-        end: '[^_\\s]__(?![*_~])',
-        relevance: 0,
-      },
-
-      // Markup-mode emphasis: `*foo*` and `_foo_`.
-      // Lookbehind excludes `*_~` and word chars so a marker
-      // inside an identifier (`var_name`, `var*foo`) doesn't
-      // get misread as emphasis start.
-      {
-        className: 'emphasis',
-        begin: '(?<![*_~\\w])\\*[^*\\s]',
-        end: '[^*\\s]\\*(?![*_~])',
-        relevance: 0,
-      },
-      {
-        className: 'emphasis',
-        begin: '(?<![*_~\\w])_[^_\\s]',
-        end: '[^_\\s]_(?![*_~])',
-        relevance: 0,
-      },
-
-      // Sub/superscript markup: `~foo~`. The single `~`
-      // shorthand is a non-breaking space in markup; the
-      // emphasis rule needs a pair of `~`s with non-space
-      // content between them.
-      {
-        className: 'emphasis',
-        begin: '(?<![*_~\\w])~[^~\\s]',
-        end: '[^~\\s]~(?!~)',
-        relevance: 0,
-      },
-
-      // Character escape: `\#`, `\*`, `\_`, `\$`, `\@`, `\<`,
-      // `\>`, `\[`, `\]`, `\(`, `\)`, `\{`, `\}`, `\=`, `\-`,
-      // `\+`, `\/`, `\:`, `\;`, `\'`, `\"`, and the
-      // Unicode form `\u{1f600}`. The escaped backslash
-      // (`\\`) is a literal `\` and is matched too.
-      {
-        className: 'meta',
-        begin:
-          '\\\\(?:[\\#\\$\\@\\<\\>\\[\\]\\(\\)\\{\\}\\=\\-\\+\\/\\:\\;\\\'\\"\\*]|(?:u\\{[0-9A-Fa-f]+\\}))',
-        relevance: 0,
-      },
-
-      // Label reference target: `<identifier>` (or
-      // `<namespace:label>`). Must be at a word boundary
-      // (preceded by whitespace, start of line, or
-      // punctuation) so the `if a < b` less-than isn't
-      // misread.
-      {
-        className: 'symbol',
-        begin:
-          '(?:^|(?<=[\\s\\(\\[\\{,;]))<[a-zA-Z_][a-zA-Z0-9_\\-]*(?::[a-zA-Z_][a-zA-Z0-9_\\-]*)?>',
-        relevance: 0,
-      },
-
-      // Label reference use site: `@identifier` (or
-      // `@namespace:label`).
-      {
-        className: 'symbol',
-        begin:
-          '(?:^|(?<=[\\s\\(\\[\\{,;]))@[a-zA-Z_][a-zA-Z0-9_\\-]*(?::[a-zA-Z_][a-zA-Z0-9_\\-]*)?',
-        relevance: 0,
-      },
-
-      // Em-dash (`---`) and ellipsis (`...`). En-dash (`--`)
-      // is omitted to avoid clashing with two adjacent `-`
-      // characters in an argument list.
-      {
-        className: 'string',
-        begin: '---',
-        relevance: 0,
-      },
-      {
-        className: 'string',
-        begin: '\\.\\.\\.',
-        relevance: 0,
-      },
-
-      // Code-mode keyword: `#keyword` (e.g. `#if`,
-      // `#for`, `#let`, `#in`, `#and`, `#or`).
-      //
-      // IMPORTANT: keywords/builtins/literals are NOT
-      // listed at the top level of the grammar. Top-level
-      // keyword lists are matched by hljs's keyword engine
-      // anywhere in the document, which means a word like
-      // `text` or `for` in a markup paragraph would get
-      // highlighted as a keyword/builtin. That's wrong:
-      // these are reserved only in code mode (after `#`),
-      // and the same word in markup is just text.
-      //
-      // The fix is to require a `#` prefix and list each
-      // word as an alternation in a `begin` pattern. The
-      // word-boundary `\b` is needed so `#text` doesn't
-      // also match `#textile`.
-      {
-        className: 'keyword',
-        begin: `#(?:${KEYWORDS.join('|')})\\b`,
-        relevance: 0,
-      },
-
-      // Code-mode literal: `#true`, `#false`, `#none`,
-      // `#auto`. Same `#`-prefix rationale as the keyword
-      // rule above.
-      {
-        className: 'literal',
-        begin: `#(?:${LITERALS.join('|')})\\b`,
-        relevance: 0,
-      },
-
-      // Code-mode standard library: `#text`, `#heading`,
-      // `#emph`, `#strong`, etc. Same `#`-prefix
-      // rationale.
-      {
-        className: 'built_in',
-        begin: `#(?:${BUILT_INS.join('|')})\\b`,
-        relevance: 0,
-      },
-
-      // Code-mode function call: `#identifier`. The
-      // negative lookahead skips the language keywords,
-      // literals, and built-ins so they fall through to
-      // their own rules and get their own colour. (The
-      // three rules above would also match first by
-      // position; the lookahead is a small optimisation
-      // that avoids re-matching the same words in the
-      // function rule's regex.)
-      {
-        className: 'function',
-        begin: `#(?!${reservedAlt}\\b)[a-zA-Z_][a-zA-Z0-9_\\-]*`,
-        relevance: 0,
-      },
-
-      // Code-mode variable references inside an
-      // expression. We only catch them when they're
-      // surrounded by typical code-mode punctuation
-      // (e.g. `(`, `,`, `=`, `:`) so markup words like
-      // `Hello` in a paragraph don't get coloured.
-      {
-        className: 'variable',
-        begin: '(?<=[(,=:])[a-zA-Z_][a-zA-Z0-9_\\-]*(?=\\s*[,)=:])',
-        relevance: 0,
+        begin: '(?<!\\\\)#',
+        end: /(?=[;\n]|$)/,
+        keywords: codeKeywords,
+        contains: [
+          ...codeAtomRules,
+          parensMode,
+          bracesMode,
+          contentBlockMode,
+        ],
       },
     ],
   }

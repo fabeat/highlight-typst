@@ -3,26 +3,26 @@
 <span class="hljs-comment">// pattern is:</span>
 <span class="hljs-comment">//   \b\d+(\.\d+)?(e[+-]?\d+)?(pt|mm|cm|in|em|rem|px|deg|rad|fr|%)?\b</span>
 
-<span class="hljs-keyword">#let</span> plain = <span class="hljs-number">42</span>
-<span class="hljs-keyword">#let</span> decimal = <span class="hljs-number">3.14</span>
-<span class="hljs-keyword">#let</span> sci = <span class="hljs-number">1.5e3</span>
-<span class="hljs-keyword">#let</span> sci_signed = <span class="hljs-number">2.5e-10</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">plain</span> = <span class="hljs-number">42</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-built_in">decimal</span> = <span class="hljs-number">3.14</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">sci</span> = <span class="hljs-number">1.5e3</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">sci_signed</span> = <span class="hljs-number">2.5e-10</span>
 
-<span class="hljs-keyword">#let</span> pt = <span class="hljs-number">12pt</span>
-<span class="hljs-keyword">#let</span> mm = <span class="hljs-number">25.4mm</span>
-<span class="hljs-keyword">#let</span> cm = <span class="hljs-number">2.5cm</span>
-<span class="hljs-keyword">#let</span> inches = <span class="hljs-number">1in</span>
-<span class="hljs-keyword">#let</span> em = <span class="hljs-number">1.5em</span>
-<span class="hljs-keyword">#let</span> rem = <span class="hljs-number">2rem</span>
-<span class="hljs-keyword">#let</span> px = <span class="hljs-number">720px</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">pt</span> = <span class="hljs-number">12pt</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">mm</span> = <span class="hljs-number">25.4mm</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">cm</span> = <span class="hljs-number">2.5cm</span>
+#<span class="hljs-keyword">let</span> inches = <span class="hljs-number">1in</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">em</span> = <span class="hljs-number">1.5em</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">rem</span> = <span class="hljs-number">2rem</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">px</span> = <span class="hljs-number">720px</span>
 
-<span class="hljs-keyword">#let</span> deg = <span class="hljs-number">90deg</span>
-<span class="hljs-keyword">#let</span> rad = <span class="hljs-number">3.14rad</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">deg</span> = <span class="hljs-number">90deg</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">rad</span> = <span class="hljs-number">3.14rad</span>
 
-<span class="hljs-keyword">#let</span> grid_unit = <span class="hljs-number">1fr</span>
-<span class="hljs-keyword">#let</span> percent = <span class="hljs-number">50</span>%
+#<span class="hljs-keyword">let</span> grid_unit = <span class="hljs-number">1fr</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">percent</span> = <span class="hljs-number">50</span>%
 
 <span class="hljs-comment">// Numbers inside larger expressions should still tokenise:</span>
-<span class="hljs-keyword">#let</span> sum = <span class="hljs-number">1</span> + <span class="hljs-number">2.5</span> * <span class="hljs-number">3</span>
-<span class="hljs-keyword">#let</span> ratio = (<span class="hljs-number">12pt</span> / <span class="hljs-number">1em</span>) * <span class="hljs-number">100</span>%
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">sum</span> = <span class="hljs-number">1</span> + <span class="hljs-number">2.5</span> * <span class="hljs-number">3</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-built_in">ratio</span> = (<span class="hljs-number">12pt</span> / <span class="hljs-number">1em</span>) * <span class="hljs-number">100</span>%
 

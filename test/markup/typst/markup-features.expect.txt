@@ -31,7 +31,7 @@ The label syntax `&lt;intro&gt;` is itself a markup token. So
 `<span class="hljs-meta">\&lt;</span>label<span class="hljs-meta">\&gt;</span>` is an escaped label reference, not a label.
 
 The set rule applies a style globally:
-<span class="hljs-keyword">#set</span> heading(<span class="hljs-variable">numbering</span>: <span class="hljs-string">&quot;1.&quot;</span>)
+#<span class="hljs-keyword">set</span> <span class="hljs-built_in">heading</span>(<span class="hljs-built_in">numbering</span>: <span class="hljs-string">&quot;1.&quot;</span>)
 
 <span class="hljs-title">= Strong styling &lt;strong&gt;</span>
 
@@ -40,13 +40,13 @@ bold**</span>. Mix and match for <span class="hljs-emphasis">*nested*</span> emp
 
 <span class="hljs-title">= Code with labels</span>
 
-<span class="hljs-keyword">#let</span> section = <span class="hljs-symbol">&lt;sec:main&gt;</span>
-<span class="hljs-keyword">#let</span> private_var = <span class="hljs-number">42</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">section</span> = &lt;<span class="hljs-variable">sec</span>:<span class="hljs-variable">main</span>&gt;
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">private_var</span> = <span class="hljs-number">42</span>
 
 Use <span class="hljs-symbol">@sec:main</span> to cross-reference the section.
 
 The `&lt;sec:main&gt;` label can be reached via the
-ref function, like <span class="hljs-built_in">#ref</span>(<span class="hljs-symbol">&lt;sec:main&gt;</span>).
+ref function, like #<span class="hljs-built_in">ref</span>(&lt;<span class="hljs-variable">sec</span>:<span class="hljs-variable">main</span>&gt;).
 
 <span class="hljs-title">= Em-dash and ellipsis in prose</span>
 

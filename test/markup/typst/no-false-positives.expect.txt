@@ -25,7 +25,7 @@ text in this sentence.
 Body text under level <span class="hljs-number">3</span> — useful for subsections that don&#x27;t
 appear in the auto-generated table of contents.
 
-<span class="hljs-built_in">#emph</span>[Inline emphasis] and <span class="hljs-built_in">#strong</span>[strong text] round out
+#<span class="hljs-built_in">emph</span>[Inline emphasis] and #<span class="hljs-built_in">strong</span>[strong text] round out
 the common formatting primitives.
 
 The words emph, strong, text, table, heading, for, in, and,

@@ -1,0 +1,78 @@
+<span class="hljs-comment">// The 3 modes of Typst: code (#-prefixed), math ($...$),</span>
+<span class="hljs-comment">// and markup (default, including content blocks [...]).</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Each subsection exercises a different transition</span>
+<span class="hljs-comment">// between the three modes. A regression in any of these</span>
+<span class="hljs-comment">// would be visible in the rendered output.</span>
+
+<span class="hljs-comment">// = Code mode: keywords, builtins, literals, function calls</span>
+
+<span class="hljs-comment">// The first reserved word after `#` gets the keyword /</span>
+<span class="hljs-comment">// builtin / literal colour. Subsequent reserved words in</span>
+<span class="hljs-comment">// the same expression are also highlighted because we&#x27;re</span>
+<span class="hljs-comment">// in code mode.</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">name</span> = <span class="hljs-string">&quot;Typst&quot;</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">active</span> = <span class="hljs-literal">true</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">count</span> = <span class="hljs-number">0</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-built_in">ratio</span> = <span class="hljs-number">1.5</span>
+
+<span class="hljs-comment">// `for`, `in`, `if`, `else` are all keywords here.</span>
+#<span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-function">range</span>(<span class="hljs-number">10</span>) {
+  <span class="hljs-keyword">if</span> <span class="hljs-variable">i</span> &gt; <span class="hljs-number">5</span> [
+    <span class="hljs-variable">Skip</span>
+  ] <span class="hljs-keyword">else</span> [
+    <span class="hljs-variable">Count</span>: #<span class="hljs-variable">i</span>
+  ]
+}
+
+<span class="hljs-comment">// = Content block `[...]` switches back to markup</span>
+
+<span class="hljs-comment">// Inside `[...]` we are in markup mode, so `text` is NOT</span>
+<span class="hljs-comment">// a built-in, `for` is NOT a keyword - they&#x27;re just</span>
+<span class="hljs-comment">// markup text.</span>
+#<span class="hljs-built_in">text</span>(<span class="hljs-variable">weight</span>: <span class="hljs-string">&quot;bold&quot;</span>)[This is markup <span class="hljs-emphasis">*with emphasis*</span>]
+#<span class="hljs-built_in">emph</span>[and `code` spans]
+#blockquote[
+  = A heading inside a content block
+  Body text with <span class="hljs-emphasis">*emphasis*</span> and <span class="hljs-emphasis">_also emphasis_</span>.
+]
+
+<span class="hljs-comment">// The closing `]` of a content block ends the code mode,</span>
+<span class="hljs-comment">// so trailing text on the same line is in markup mode.</span>
+#<span class="hljs-built_in">emph</span>[Hello] and #<span class="hljs-built_in">strong</span>[world] are both formatted.
+
+<span class="hljs-comment">// = Balanced brackets inside code mode</span>
+
+<span class="hljs-comment">// `(...)` groups a code expression; `{...}` is a code</span>
+<span class="hljs-comment">// block. Both are still in code mode, so keywords,</span>
+<span class="hljs-comment">// builtins, and variables are highlighted.</span>
+#<span class="hljs-keyword">let</span> invoice = (<span class="hljs-variable">client</span>: <span class="hljs-string">&quot;Acme&quot;</span>, <span class="hljs-variable">total</span>: <span class="hljs-number">100</span>, <span class="hljs-variable">paid</span>: <span class="hljs-literal">false</span>)
+#<span class="hljs-keyword">if</span> invoice.<span class="hljs-function">paid</span> [
+  Thanks!
+] else [
+  You owe #invoice.<span class="hljs-variable">total</span>
+]
+
+#<span class="hljs-keyword">set</span> <span class="hljs-built_in">text</span>(<span class="hljs-number">10pt</span>, <span class="hljs-variable">font</span>: <span class="hljs-string">&quot;Inter&quot;</span>)
+#<span class="hljs-keyword">show</span> <span class="hljs-built_in">heading</span>.<span class="hljs-function">where</span>(<span class="hljs-variable">level</span>: <span class="hljs-number">1</span>): <span class="hljs-variable">it</span> =&gt; <span class="hljs-built_in">block</span>[
+  <span class="hljs-emphasis">*#it.body*</span>
+]
+
+<span class="hljs-comment">// = Math mode: $...$ in markup</span>
+
+<span class="hljs-comment">// Math is markup, not code. Reserved words inside `$...$`</span>
+<span class="hljs-comment">// are just symbols.</span>
+The quadratic formula is <span class="hljs-meta">$x = (-b plus.minus sqrt(b^2 - 4 a c)) / (2 a)$</span>.
+
+A display equation:
+$ E = m c^<span class="hljs-number">2</span> $
+
+<span class="hljs-comment">// = Escaped `#` is NOT a code-mode trigger</span>
+
+<span class="hljs-comment">// `\#` is a literal hash in markup; it should not start</span>
+<span class="hljs-comment">// code mode. The `false` here is a code-mode literal, but</span>
+<span class="hljs-comment">// the `\#hashtag` on the previous line is a markup</span>
+<span class="hljs-comment">// character escape.</span>
+You can write a literal hash like <span class="hljs-meta">\#</span>hashtag.
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">flag</span> = <span class="hljs-literal">false</span>
+

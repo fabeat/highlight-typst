@@ -3,53 +3,53 @@
 <span class="hljs-comment">// the ones not already covered in the `default` / `invoice`</span>
 <span class="hljs-comment">// fixtures so a regression in any of them is caught.</span>
 
-<span class="hljs-built_in">#align</span>(<span class="hljs-variable">center</span>)[centered]
-<span class="hljs-built_in">#align</span>(left + horizon)[two-axis]
+#<span class="hljs-built_in">align</span>(<span class="hljs-variable">center</span>)[centered]
+#<span class="hljs-built_in">align</span>(<span class="hljs-variable">left</span> + horizon)[two-axis]
 
-<span class="hljs-built_in">#block</span>(<span class="hljs-variable">fill</span>: red, width: <span class="hljs-number">100</span>%)[a block]
-<span class="hljs-built_in">#box</span>(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>)[a box]
+#<span class="hljs-built_in">block</span>(<span class="hljs-variable">fill</span>: <span class="hljs-variable">red</span>, <span class="hljs-variable">width</span>: <span class="hljs-number">100</span>%)[a block]
+#<span class="hljs-built_in">box</span>(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>)[a box]
 
-<span class="hljs-built_in">#stack</span>(<span class="hljs-variable">dir</span>: ltr, spacing: <span class="hljs-number">1em</span>)[a][b][c]
-<span class="hljs-built_in">#grid</span>(<span class="hljs-variable">columns</span>: (<span class="hljs-number">1fr</span>, <span class="hljs-number">1fr</span>), [a], [b])
+#<span class="hljs-built_in">stack</span>(<span class="hljs-variable">dir</span>: <span class="hljs-variable">ltr</span>, <span class="hljs-variable">spacing</span>: <span class="hljs-number">1em</span>)[a][b][c]
+#<span class="hljs-built_in">grid</span>(<span class="hljs-built_in">columns</span>: (<span class="hljs-number">1fr</span>, <span class="hljs-number">1fr</span>), [<span class="hljs-variable">a</span>], [<span class="hljs-variable">b</span>])
 
-<span class="hljs-built_in">#table</span>(
-  columns: <span class="hljs-number">3</span>,
-  [a], [b], [c],
+#<span class="hljs-built_in">table</span>(
+  <span class="hljs-built_in">columns</span>: <span class="hljs-number">3</span>,
+  [<span class="hljs-variable">a</span>], [<span class="hljs-variable">b</span>], [<span class="hljs-variable">c</span>],
 )
 
-<span class="hljs-built_in">#image</span>(<span class="hljs-string">&quot;photo.png&quot;</span>, width: <span class="hljs-number">80</span>%)
+#<span class="hljs-built_in">image</span>(<span class="hljs-string">&quot;photo.png&quot;</span>, <span class="hljs-variable">width</span>: <span class="hljs-number">80</span>%)
 
-<span class="hljs-built_in">#figure</span>(
-  image(<span class="hljs-string">&quot;chart.png&quot;</span>),
-  caption: [A chart],
+#<span class="hljs-built_in">figure</span>(
+  <span class="hljs-built_in">image</span>(<span class="hljs-string">&quot;chart.png&quot;</span>),
+  <span class="hljs-variable">caption</span>: [<span class="hljs-variable">A</span> <span class="hljs-variable">chart</span>],
 )
 
-<span class="hljs-built_in">#link</span>(<span class="hljs-string">&quot;https://typst.app&quot;</span>)[Typst]
+#<span class="hljs-built_in">link</span>(<span class="hljs-string">&quot;https://typst.app&quot;</span>)[Typst]
 
-<span class="hljs-built_in">#raw</span>(<span class="hljs-string">&quot;monospace `code`&quot;</span>, lang: <span class="hljs-string">&quot;typst&quot;</span>)
+#<span class="hljs-built_in">raw</span>(<span class="hljs-string">&quot;monospace `code`&quot;</span>, <span class="hljs-variable">lang</span>: <span class="hljs-string">&quot;typst&quot;</span>)
 
-<span class="hljs-built_in">#emph</span>([italic])
-<span class="hljs-built_in">#strong</span>([bold])
-<span class="hljs-built_in">#underline</span>([underlined])
-<span class="hljs-built_in">#strike</span>([struck])
-<span class="hljs-built_in">#highlight</span>(<span class="hljs-variable">fill</span>: yellow)[highlighted]
+#<span class="hljs-built_in">emph</span>([<span class="hljs-variable">italic</span>])
+#<span class="hljs-built_in">strong</span>([<span class="hljs-variable">bold</span>])
+#<span class="hljs-built_in">underline</span>([underlined])
+#<span class="hljs-built_in">strike</span>([struck])
+#<span class="hljs-built_in">highlight</span>(<span class="hljs-variable">fill</span>: <span class="hljs-variable">yellow</span>)[highlighted]
 
-<span class="hljs-built_in">#quote</span>(<span class="hljs-variable">block</span>: true)[a quotation]
+#<span class="hljs-built_in">quote</span>(<span class="hljs-built_in">block</span>: <span class="hljs-literal">true</span>)[a quotation]
 
-<span class="hljs-built_in">#footnote</span>[see page <span class="hljs-number">42</span>]
+#<span class="hljs-built_in">footnote</span>[see page <span class="hljs-number">42</span>]
 
-<span class="hljs-built_in">#cite</span>(<span class="hljs-symbol">&lt;key&gt;</span>, form: <span class="hljs-string">&quot;prose&quot;</span>)
-<span class="hljs-built_in">#bibliography</span>(<span class="hljs-string">&quot;refs.bib&quot;</span>)
+#<span class="hljs-built_in">cite</span>(&lt;<span class="hljs-variable">key</span>&gt;, form: <span class="hljs-string">&quot;prose&quot;</span>)
+#<span class="hljs-built_in">bibliography</span>(<span class="hljs-string">&quot;refs.bib&quot;</span>)
 
-<span class="hljs-built_in">#list</span>([a], [b], [c])
-<span class="hljs-built_in">#enum</span>[first][second][third]
-<span class="hljs-built_in">#terms</span>[Term <span class="hljs-number">1</span>: Definition <span class="hljs-number">1</span>][Term <span class="hljs-number">2</span>: Definition <span class="hljs-number">2</span>]
+#<span class="hljs-built_in">list</span>([<span class="hljs-variable">a</span>], [<span class="hljs-variable">b</span>], [<span class="hljs-variable">c</span>])
+#<span class="hljs-built_in">enum</span>[first][second][third]
+#<span class="hljs-built_in">terms</span>[Term <span class="hljs-number">1</span>: Definition <span class="hljs-number">1</span>][Term <span class="hljs-number">2</span>: Definition <span class="hljs-number">2</span>]
 
-<span class="hljs-built_in">#outline</span>(<span class="hljs-variable">title</span>: [Contents], depth: <span class="hljs-number">2</span>)
+#<span class="hljs-built_in">outline</span>(<span class="hljs-built_in">title</span>: [<span class="hljs-variable">Contents</span>], <span class="hljs-variable">depth</span>: <span class="hljs-number">2</span>)
 
-<span class="hljs-built_in">#counter</span>(<span class="hljs-string">&quot;section&quot;</span>).step()
-<span class="hljs-built_in">#state</span>(<span class="hljs-string">&quot;key&quot;</span>).update(<span class="hljs-number">1</span>)
-<span class="hljs-built_in">#query</span>(<span class="hljs-symbol">&lt;label&gt;</span>)
-<span class="hljs-built_in">#locate</span>(<span class="hljs-symbol">&lt;label&gt;</span>)
-<span class="hljs-built_in">#selector</span>([heading])
+#<span class="hljs-built_in">counter</span>(<span class="hljs-string">&quot;section&quot;</span>).<span class="hljs-function">step</span>()
+#<span class="hljs-built_in">state</span>(<span class="hljs-string">&quot;key&quot;</span>).<span class="hljs-function">update</span>(<span class="hljs-number">1</span>)
+#<span class="hljs-built_in">query</span>(&lt;<span class="hljs-built_in">label</span>&gt;)
+#<span class="hljs-built_in">locate</span>(&lt;<span class="hljs-built_in">label</span>&gt;)
+#<span class="hljs-built_in">selector</span>([<span class="hljs-built_in">heading</span>])
 

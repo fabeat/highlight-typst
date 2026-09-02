@@ -5,48 +5,48 @@
 <span class="hljs-comment">// instead of being painted as a plain function call. This</span>
 <span class="hljs-comment">// test guards against that lookup table drifting.</span>
 
-<span class="hljs-keyword">#let</span> x = <span class="hljs-number">1</span>
-<span class="hljs-keyword">#let</span> y = true
-<span class="hljs-keyword">#let</span> z = false
-<span class="hljs-keyword">#let</span> n = none
-<span class="hljs-keyword">#let</span> a = auto
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">x</span> = <span class="hljs-number">1</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">y</span> = <span class="hljs-literal">true</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">z</span> = <span class="hljs-literal">false</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">n</span> = <span class="hljs-built_in">none</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = <span class="hljs-built_in">auto</span>
 
-<span class="hljs-keyword">#if</span> x &gt; <span class="hljs-number">0</span> [
+#<span class="hljs-keyword">if</span> <span class="hljs-variable">x</span> &gt; <span class="hljs-number">0</span> [
   positive
 ] else [
   negative
 ]
 
-<span class="hljs-keyword">#for</span> i in range(<span class="hljs-number">5</span>) {
-  [<span class="hljs-function">#i</span>]
+#<span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-function">range</span>(<span class="hljs-number">5</span>) {
+  [#<span class="hljs-variable">i</span>]
 }
 
-<span class="hljs-keyword">#while</span> x &lt; <span class="hljs-number">10</span> {
-  x = x + <span class="hljs-number">1</span>
+#<span class="hljs-keyword">while</span> <span class="hljs-variable">x</span> &lt; <span class="hljs-number">10</span> {
+  <span class="hljs-variable">x</span> = <span class="hljs-variable">x</span> + <span class="hljs-number">1</span>
 }
 
-<span class="hljs-keyword">#let</span> loop = for n in range(<span class="hljs-number">3</span>) {
-  if n == <span class="hljs-number">1</span> { continue }
-  if n == <span class="hljs-number">2</span> { break }
-  n
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">loop</span> = <span class="hljs-keyword">for</span> <span class="hljs-variable">n</span> <span class="hljs-keyword">in</span> <span class="hljs-function">range</span>(<span class="hljs-number">3</span>) {
+  <span class="hljs-keyword">if</span> <span class="hljs-variable">n</span> == <span class="hljs-number">1</span> { <span class="hljs-keyword">continue</span> }
+  <span class="hljs-keyword">if</span> <span class="hljs-variable">n</span> == <span class="hljs-number">2</span> { <span class="hljs-keyword">break</span> }
+  <span class="hljs-variable">n</span>
 }
 
-<span class="hljs-keyword">#let</span> f = (<span class="hljs-variable">x</span>) =&gt; {
-  if x == <span class="hljs-number">0</span> { return <span class="hljs-number">0</span> }
-  x
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">f</span> = (<span class="hljs-variable">x</span>) =&gt; {
+  <span class="hljs-keyword">if</span> <span class="hljs-variable">x</span> == <span class="hljs-number">0</span> { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span> }
+  <span class="hljs-variable">x</span>
 }
 
-<span class="hljs-keyword">#import</span> <span class="hljs-string">&quot;module.typ&quot;</span>: thing, other
-<span class="hljs-keyword">#import</span> <span class="hljs-string">&quot;module.typ&quot;</span> as mod
-<span class="hljs-keyword">#include</span> <span class="hljs-string">&quot;snippet.typ&quot;</span>
+#<span class="hljs-keyword">import</span> <span class="hljs-string">&quot;module.typ&quot;</span>: <span class="hljs-variable">thing</span>, <span class="hljs-variable">other</span>
+#<span class="hljs-keyword">import</span> <span class="hljs-string">&quot;module.typ&quot;</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">mod</span>
+#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;snippet.typ&quot;</span>
 
-<span class="hljs-keyword">#let</span> r = not true
-<span class="hljs-keyword">#let</span> flag = true and false
-<span class="hljs-keyword">#let</span> either = true or false
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">r</span> = <span class="hljs-keyword">not</span> <span class="hljs-literal">true</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">flag</span> = <span class="hljs-literal">true</span> <span class="hljs-keyword">and</span> <span class="hljs-literal">false</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">either</span> = <span class="hljs-literal">true</span> <span class="hljs-keyword">or</span> <span class="hljs-literal">false</span>
 
-<span class="hljs-keyword">#set</span> text(<span class="hljs-number">10pt</span>)
-<span class="hljs-keyword">#show</span> heading: it =&gt; block(<span class="hljs-variable">it</span>)
-<span class="hljs-keyword">#context</span> {
-  let m = measure(box(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>, height: <span class="hljs-number">1em</span>))
+#<span class="hljs-keyword">set</span> <span class="hljs-built_in">text</span>(<span class="hljs-number">10pt</span>)
+#<span class="hljs-keyword">show</span> <span class="hljs-built_in">heading</span>: <span class="hljs-variable">it</span> =&gt; <span class="hljs-built_in">block</span>(<span class="hljs-variable">it</span>)
+#<span class="hljs-keyword">context</span> {
+  <span class="hljs-keyword">let</span> <span class="hljs-variable">m</span> = <span class="hljs-built_in">measure</span>(<span class="hljs-built_in">box</span>(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>, height: <span class="hljs-number">1em</span>))
 }
 

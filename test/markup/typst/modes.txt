@@ -1,0 +1,77 @@
+// The 3 modes of Typst: code (#-prefixed), math ($...$),
+// and markup (default, including content blocks [...]).
+//
+// Each subsection exercises a different transition
+// between the three modes. A regression in any of these
+// would be visible in the rendered output.
+
+// = Code mode: keywords, builtins, literals, function calls
+
+// The first reserved word after `#` gets the keyword /
+// builtin / literal colour. Subsequent reserved words in
+// the same expression are also highlighted because we're
+// in code mode.
+#let name = "Typst"
+#let active = true
+#let count = 0
+#let ratio = 1.5
+
+// `for`, `in`, `if`, `else` are all keywords here.
+#for i in range(10) {
+  if i > 5 [
+    Skip
+  ] else [
+    Count: #i
+  ]
+}
+
+// = Content block `[...]` switches back to markup
+
+// Inside `[...]` we are in markup mode, so `text` is NOT
+// a built-in, `for` is NOT a keyword - they're just
+// markup text.
+#text(weight: "bold")[This is markup *with emphasis*]
+#emph[and `code` spans]
+#blockquote[
+  = A heading inside a content block
+  Body text with *emphasis* and _also emphasis_.
+]
+
+// The closing `]` of a content block ends the code mode,
+// so trailing text on the same line is in markup mode.
+#emph[Hello] and #strong[world] are both formatted.
+
+// = Balanced brackets inside code mode
+
+// `(...)` groups a code expression; `{...}` is a code
+// block. Both are still in code mode, so keywords,
+// builtins, and variables are highlighted.
+#let invoice = (client: "Acme", total: 100, paid: false)
+#if invoice.paid [
+  Thanks!
+] else [
+  You owe #invoice.total
+]
+
+#set text(10pt, font: "Inter")
+#show heading.where(level: 1): it => block[
+  *#it.body*
+]
+
+// = Math mode: $...$ in markup
+
+// Math is markup, not code. Reserved words inside `$...$`
+// are just symbols.
+The quadratic formula is $x = (-b plus.minus sqrt(b^2 - 4 a c)) / (2 a)$.
+
+A display equation:
+$ E = m c^2 $
+
+// = Escaped `#` is NOT a code-mode trigger
+
+// `\#` is a literal hash in markup; it should not start
+// code mode. The `false` here is a code-mode literal, but
+// the `\#hashtag` on the previous line is a markup
+// character escape.
+You can write a literal hash like \#hashtag.
+#let flag = false
