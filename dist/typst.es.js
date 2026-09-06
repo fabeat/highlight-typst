@@ -228,8 +228,15 @@ function typst (hljs) {
     },
 
     // Inline math: `$x$`. Strict begin: `$` not preceded by
-    // a word char, not preceded by another `$` (to skip
-    // `$$`). Strict end: `$` not followed by a digit or
+    // a word char OR a backtick (so `` `$ ... $` `` in
+    // markup - inline code wrapping a literal `$ ... $` -
+    // does not open a math span that swallows the rest of
+    // the document), not preceded by another `$` (to skip
+    // `$$`); followed by a non-whitespace, non-backtick
+    // char (so `$ ` for display math is left alone - that
+    // case is the `$$ ... $$` rule above - and `$`\`` at
+    // the end of an inline-code span does not start a
+    // math). Strict end: `$` not followed by a digit or
     // letter (so `100$` or `var$` don't match). This
     // means `$#var$` (Typst syntax inside math) still
     // works because `$` is at a word boundary, and
@@ -238,7 +245,7 @@ function typst (hljs) {
     // purposes).
     {
       className: 'meta',
-      begin: '(?<!\\w)\\$\\S',
+      begin: '(?<!\\w|`)\\$(?![\\s`])',
       end: '\\S\\$(?!\\w)',
       relevance: 0,
     },

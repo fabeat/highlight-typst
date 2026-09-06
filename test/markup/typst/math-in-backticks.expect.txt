@@ -1,0 +1,33 @@
+<span class="hljs-comment">// Regression test for `$ ... $` wrapped in inline-code</span>
+<span class="hljs-comment">// backticks. Before the fix, the inline-math begin regex</span>
+<span class="hljs-comment">// was `(?&lt;!\w)\$\S` - &quot;$&quot; not preceded by a word char,</span>
+<span class="hljs-comment">// followed by ANY non-whitespace char. In `` `$ ... $` ``,</span>
+<span class="hljs-comment">// the first &quot;$&quot; is followed by a space (begin does not</span>
+<span class="hljs-comment">// match - correct), but the second &quot;$&quot; is followed by a</span>
+<span class="hljs-comment">// backtick (non-whitespace, so begin matched), opening a</span>
+<span class="hljs-comment">// math span that never closed and swallowing the rest of</span>
+<span class="hljs-comment">// the document in `hljs-meta`. The fix adds the backtick</span>
+<span class="hljs-comment">// to both the lookbehind (so a &quot;$&quot; preceded by a backtick</span>
+<span class="hljs-comment">// does not start math) and the lookahead (so a &quot;$&quot; followed</span>
+<span class="hljs-comment">// by a backtick does not start math either). This file</span>
+<span class="hljs-comment">// is the user-reported showcase line, plus a handful of</span>
+<span class="hljs-comment">// variations to lock the new behaviour in.</span>
+
+<span class="hljs-comment">// The exact line from `spora-plugin-typst/skills/typst/examples/showcase.typ`.</span>
+<span class="hljs-emphasis">*Bold text*</span>, <span class="hljs-emphasis">_italic text_</span>, `inline code`, and inline math
+delimiters (the `$ <span class="hljs-string">...</span> $` pair — see section <span class="hljs-number">7</span>).
+
+<span class="hljs-comment">// Other shapes that previously misbehaved the same way.</span>
+Bare: `$ <span class="hljs-string">...</span> $`.
+
+Math inside an inline-code span: `` `$x$` `` and `` `$ <span class="hljs-string">...</span> $` ``.
+
+Display-math-like text inside backticks is also left alone
+because `$ ` is whitespace after, not math start: `` `$ x^<span class="hljs-number">2</span> $` ``.
+
+A real inline-math next to an inline-code span still highlights
+as math when the `$` is not at a backtick boundary: <span class="hljs-meta">$x$</span> and `` `$y$` ``.
+
+<span class="hljs-comment">// Block math `$$ ... $$` is unaffected by the fix.</span>
+<span class="hljs-meta">$$ sum_(k=1)^n k = (n (n + 1)) / 2 <span class="hljs-string">$$</span>
+</span>
