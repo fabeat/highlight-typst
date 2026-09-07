@@ -1,6 +1,6 @@
 {
   "name": "highlightjs-typst",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Custom highlight.js language definition for Typst markup + code, plus a thin highlight(source) wrapper. Follows the official highlight.js third-party grammar template structure so it can be listed in SUPPORTED_LANGUAGES.md.",
   "license": "MIT",
   "type": "module",
