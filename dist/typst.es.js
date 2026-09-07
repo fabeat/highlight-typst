@@ -156,12 +156,37 @@ function typst (hljs) {
   // non-ASCII letters in markup text don't fall through
   // the cracks. (In code mode this is mostly cosmetic;
   // the rules just don't break on adjacent Unicode.)
+  // Two bugs lived here before:
+  //   1. `${reservedAlt}\\b` parsed as `(alt1|alt2|...|lastAlt)\\b`,
+  //      so `\\b` only applied to the LAST alternative (alternation
+  //      `|` has the lowest precedence). For any reserved word that
+  //      was NOT last in the list - notably the single letter `h` -
+  //      the negative lookahead matched at every position where a
+  //      built-in's prefix happened to start, even when the next
+  //      char was a letter (no word boundary). That rejected
+  //      user-defined identifiers like `height` and `inset` which
+  //      start with the prefix `h` of the built-in `h`.
+  //   2. `\\b` itself is the wrong boundary for this grammar. Typst
+  //      identifiers can contain `-` (e.g. `dm-sans`, `circle-fill`),
+  //      and `\\b` matches between a word char and `-` because `-` is
+  //      non-word. So `(?!circle\\b)` rejected `circle-fill` at the
+  //      start because `circle` is a built-in and `\\b` matched
+  //      between `e` and `-`.
+  //
+  // Fix: wrap the alternation in a non-capturing group so the boundary
+  // applies to every alternative (`(?:alt1|alt2|...|lastAlt)`), and
+  // replace `\\b` with an explicit "not followed by an identifier
+  // char" check that includes `-`. So `(?!...)(?![\\p{L}\\p{N}_\\-])`
+  // says: the input does not start with a reserved word UNLESS that
+  // reserved word is immediately followed by more identifier chars
+  // (in which case the reserved word is just a prefix of a longer
+  // user-defined identifier like `circle-fill`).
   const identifierRe = new RegExp(
-    `(?<![\\p{L}\\p{N}_\\-])(?!${reservedAlt}\\b)[\\p{L}_][\\p{L}\\p{N}_\\-]*`,
+    `(?<![\\p{L}\\p{N}_\\-])(?!(?:${reservedAlt})(?![\\p{L}\\p{N}_\\-]))[\\p{L}_][\\p{L}\\p{N}_\\-]*`,
     'u'
   );
   const functionCallRe = new RegExp(
-    `(?<![\\p{L}\\p{N}_\\-])(?!${reservedAlt}\\b)[\\p{L}_][\\p{L}\\p{N}_\\-]*(?=\\s*[(\\[{])`,
+    `(?<![\\p{L}\\p{N}_\\-])(?!(?:${reservedAlt})(?![\\p{L}\\p{N}_\\-]))[\\p{L}_][\\p{L}\\p{N}_\\-]*(?=\\s*[(\\[{])`,
     'u'
   );
 
@@ -188,12 +213,29 @@ function typst (hljs) {
       relevance: 0,
     },
 
-    // Numbers with optional unit suffix.
-    //   42, 3.14, 1e3, 50%, 12pt, 1.5em, 90deg
+    // Markup numbers REQUIRE a unit suffix. The previous
+    // version made the unit optional, which matched
+    // every plain integer and decimal anywhere in markup
+    // text (including the date `28.` in the Spora
+    // plugin's Resilience Bakery teaser, where `28` lit
+    // up as `hljs-number` even though the markup author
+    // was writing prose, not code). In Typst, only
+    // unit-bearing numbers (`12pt`, `50%`, `1.5em`,
+    // `90deg`, `1fr`, ...) appear in markup in a way the
+    // reader would call "numeric" - plain numbers like
+    // `28` or `c^2`'s `2` are just part of the prose /
+    // math notation and shouldn't be tinted. Code-mode
+    // numbers are matched by a SEPARATE rule inside
+    // `codeAtomRules`, so expressions in parens and
+    // braces keep their numeric highlighting.
+    //
+    // Match examples: `12pt`, `25.4mm`, `2.5cm`, `1in`,
+    // `1.5em`, `2rem`, `720px`, `90deg`, `3.14rad`,
+    // `1fr`, `50%`.
     {
       className: 'number',
       begin:
-        '\\b\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(?:pt|mm|cm|in|em|rem|px|deg|rad|fr|%)?\\b',
+        '\\b\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(?:pt|mm|cm|in|em|rem|px|deg|rad|fr|%)\\b',
       relevance: 0,
     },
 
@@ -409,15 +451,95 @@ function typst (hljs) {
     },
   ];
 
+  // -----------------------------------------------------------------
+  // The `#` code mode entry is a recursive grammar: `#code`
+  // can contain parens `(...)`, braces `{...}`, and a content
+  // block `[...]`. A content block in turn can contain more
+  // `#code`, which can contain another content block, and so
+  // on. We model that with three modes that reference each
+  // other in a cycle:
+  //
+  //   codeMode        -> contentBlockMode
+  //   contentBlockMode -> codeMode
+  //   nestedContentBlockMode -> codeMode (and 'self')
+  //
+  // To break the TDZ that a `const` cycle would create, the
+  // modes are declared up front with empty `contains` arrays,
+  // then their `contains` are assigned below once all three
+  // objects exist. hljs processes the resulting references
+  // at language-registration time, by which point every
+  // pointer is populated.
+  //
+  // Two content-block variants:
+  //
+  //   - `contentBlockMode` uses `endsParent: true` and is
+  //     used DIRECTLY under `codeMode` (after a leading
+  //     `#code`). When its closing `]` matches, the
+  //     content block AND its parent (the code expression
+  //     started by `#`) both end, so `#emph[Hello] and
+  //     more text` correctly switches back to markup for
+  //     `and more text`. Without `endsParent: true` the
+  //     trailing `and` would be highlighted as a keyword.
+  //
+  //   - `nestedContentBlockMode` does NOT use `endsParent`.
+  //     It is used everywhere ELSE a `[...]` might appear:
+  //     inside `parensMode`, inside `bracesMode`, and
+  //     INSIDE `contentBlockMode` itself (for the case
+  //     `#text[outer [inner] more]` where the inner `]`
+  //     must only close the inner block). The closing `]`
+  //     ends only the nested content block and returns us
+  //     to the surrounding code-mode scope.
+  //
+  // Both variants include `codeMode` in their `contains`
+  // so that `#text(...)`, `#box(...)`, `#h(0.6em)`, and
+  // any other code-mode expression inside a content block
+  // is highlighted as code (rather than dumped as plain
+  // text). This is what makes the user-reported Datums-
+  // Pille line and the `#place(... pad(x: 50pt, y: 88pt)
+  // [#text(...)[Resilience] ...]` block highlight correctly.
+  // -----------------------------------------------------------------
+  const contentBlockMode = {
+    begin: '\\[',
+    end: '\\]',
+    endsParent: true,
+    contains: [],
+  };
+  const nestedContentBlockMode = {
+    begin: '\\[',
+    end: '\\]',
+    contains: [],
+  };
+  // The `end` lookahead fires on `;`, `\n`, `]`, or end of
+  // input. The `]` matters because a content block
+  // `[content]` is the LAST argument of any function call
+  // that uses one - `#text(size: 9pt)[hello]more` should
+  // put `more` in the OUTER markup scope, not in the
+  // leftover tail of the `#text` code mode. Without `]`
+  // here, every identifier that follows a content block
+  // on the same line (`KOSTENLOS`, `UHR`, etc.) gets
+  // painted as a code-mode variable because the code
+  // mode just keeps running until `\n`. The `\]` escape
+  // case for a literal `]` in code mode is not a valid
+  // Typst construct, so the lookahead does not need to
+  // special-case it.
+  const codeMode = {
+    begin: '(?<!\\\\)#',
+    end: /(?=[;\n\]|$])/,
+    keywords: codeKeywords,
+    contains: [],
+  };
+
   // Balanced parens `(...)` - code inside code. The `'self'`
   // reference allows nested parens, and the `codeAtomRules`
   // are duplicated for this scope. `keywords` is the same
-  // as the outer code mode.
+  // as the outer code mode. `nestedContentBlockMode` lets
+  // an inline `[...]` argument to a function call be parsed
+  // as markup instead of as a variable identifier.
   const parensMode = {
     begin: '\\(',
     end: '\\)',
     keywords: codeKeywords,
-    contains: ['self', ...codeAtomRules],
+    contains: ['self', ...codeAtomRules, nestedContentBlockMode],
   };
 
   // Balanced braces `{...}` - same as parens.
@@ -425,38 +547,31 @@ function typst (hljs) {
     begin: '\\{',
     end: '\\}',
     keywords: codeKeywords,
-    contains: ['self', ...codeAtomRules],
+    contains: ['self', ...codeAtomRules, nestedContentBlockMode],
   };
 
-  // -----------------------------------------------------------------
-  // CONTENT BLOCK `[...]` - markup inside code. The bracket
-  // pair surrounds a markup expression, so we re-enter
-  // markup mode here. `endsParent: true` (NOT to be
-  // confused with `endsWithParent`, which is the opposite
-  // - it makes the sub-mode end when the parent ends)
-  // means that when the content block's closing `]`
-  // matches, the content block AND its parent (the code
-  // mode) both end. This is what makes
-  // `#emph[Hello] and more text` correctly switch back to
-  // markup after the `]`, instead of leaving `and more
-  // text` inside the code mode where `and` would be
-  // highlighted as a keyword.
-  //
-  // Limitation: nested content blocks like
-  // `#text[outer [inner] more]` are not handled
-  // correctly - the inner `]` ends both the inner and
-  // outer content blocks plus the code mode, leaving the
-  // outer content block's `]` and `more` unparsed. This
-  // is rare enough in practice to accept the trade-off.
-  // A proper parser (e.g. Tinymist) handles this with
-  // full expression-level bracket tracking.
-  // -----------------------------------------------------------------
-  const contentBlockMode = {
-    begin: '\\[',
-    end: '\\]',
-    endsParent: true,
-    contains: [...markupRules],
-  };
+  // Now wire the cycles. The three arrays below complete
+  // the mode definitions that were sketched with empty
+  // `contains` above.
+  codeMode.contains = [
+    ...codeAtomRules,
+    parensMode,
+    bracesMode,
+    contentBlockMode,
+  ];
+  contentBlockMode.contains = [
+    ...markupRules,
+    codeMode,
+    nestedContentBlockMode,
+  ];
+  // `'self'` lets `nestedContentBlockMode` recurse so that
+  // `[outer [inner [deepest]]]` works without us needing a
+  // dedicated third-tier mode.
+  nestedContentBlockMode.contains = [
+    'self',
+    ...markupRules,
+    codeMode,
+  ];
 
   return {
     name: 'Typst',
@@ -491,17 +606,7 @@ function typst (hljs) {
       // expression are handled by the `parensMode` /
       // `bracesMode` sub-modes; a `[...]` content block
       // switches back to markup via `contentBlockMode`.
-      {
-        begin: '(?<!\\\\)#',
-        end: /(?=[;\n]|$)/,
-        keywords: codeKeywords,
-        contains: [
-          ...codeAtomRules,
-          parensMode,
-          bracesMode,
-          contentBlockMode,
-        ],
-      },
+      codeMode,
     ],
   }
 }

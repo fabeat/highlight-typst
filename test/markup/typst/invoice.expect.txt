@@ -2,37 +2,37 @@
 <span class="hljs-comment">// template. Locks in the regression where the math rule</span>
 <span class="hljs-comment">// used to swallow the rest of the document because a `$`</span>
 <span class="hljs-comment">// inside `*$#total.to-fixed(2)*` matched as a math delimiter.</span>
-#<span class="hljs-keyword">let</span> invoice(
+#<span class="hljs-keyword">let</span> <span class="hljs-function">invoice</span>(
   <span class="hljs-variable">recipient</span>: <span class="hljs-string">&quot;Acme Corp.&quot;</span>,
   <span class="hljs-variable">issuer</span>: <span class="hljs-string">&quot;Spora Studio&quot;</span>,
-  lines: (
+  <span class="hljs-variable">lines</span>: (
     (<span class="hljs-built_in">label</span>: <span class="hljs-string">&quot;Implementation&quot;</span>, <span class="hljs-variable">amount</span>: <span class="hljs-number">240.00</span>),
     (<span class="hljs-built_in">label</span>: <span class="hljs-string">&quot;Design&quot;</span>,          <span class="hljs-variable">amount</span>: <span class="hljs-number">120.00</span>),
     (<span class="hljs-built_in">label</span>: <span class="hljs-string">&quot;Review&quot;</span>,          <span class="hljs-variable">amount</span>:  <span class="hljs-number">60.00</span>),
   ),
   <span class="hljs-variable">due-in-days</span>: <span class="hljs-number">14</span>,
 ) = {
-  <span class="hljs-keyword">let</span> <span class="hljs-variable">total</span> = lines.<span class="hljs-function">fold</span>(<span class="hljs-number">0</span>, (<span class="hljs-variable">acc</span>, <span class="hljs-variable">l</span>) =&gt; <span class="hljs-variable">acc</span> + <span class="hljs-variable">l</span>.<span class="hljs-variable">amount</span>)
+  <span class="hljs-keyword">let</span> <span class="hljs-variable">total</span> = <span class="hljs-variable">lines</span>.<span class="hljs-function">fold</span>(<span class="hljs-number">0</span>, (<span class="hljs-variable">acc</span>, <span class="hljs-variable">l</span>) =&gt; <span class="hljs-variable">acc</span> + <span class="hljs-variable">l</span>.<span class="hljs-variable">amount</span>)
   <span class="hljs-keyword">let</span> <span class="hljs-variable">due</span> = <span class="hljs-built_in">datetime</span>.<span class="hljs-function">today</span>().<span class="hljs-function">display</span>(<span class="hljs-string">&quot;[month repr:long] [day], [year]&quot;</span>)
 
   <span class="hljs-keyword">set</span> <span class="hljs-built_in">document</span>(<span class="hljs-built_in">title</span>: <span class="hljs-string">&quot;Invoice&quot;</span>, <span class="hljs-variable">author</span>: <span class="hljs-variable">issuer</span>)
   <span class="hljs-keyword">set</span> <span class="hljs-built_in">page</span>(
     <span class="hljs-variable">margin</span>: (<span class="hljs-variable">x</span>: <span class="hljs-number">2.5cm</span>, <span class="hljs-variable">y</span>: <span class="hljs-number">3cm</span>),
-    header: <span class="hljs-built_in">align</span>(<span class="hljs-variable">right</span>, <span class="hljs-built_in">text</span>(<span class="hljs-number">9pt</span>, <span class="hljs-variable">fill</span>: <span class="hljs-variable">gray</span>)[<span class="hljs-variable">Invoice</span>]),
+    <span class="hljs-variable">header</span>: <span class="hljs-built_in">align</span>(<span class="hljs-variable">right</span>, <span class="hljs-built_in">text</span>(<span class="hljs-number">9pt</span>, <span class="hljs-variable">fill</span>: <span class="hljs-variable">gray</span>)[Invoice]),
   )
   <span class="hljs-keyword">set</span> <span class="hljs-built_in">text</span>(<span class="hljs-variable">font</span>: (<span class="hljs-string">&quot;Inter&quot;</span>,), <span class="hljs-variable">size</span>: <span class="hljs-number">10pt</span>)
 
   <span class="hljs-built_in">align</span>(<span class="hljs-variable">center</span>)[
-    #<span class="hljs-built_in">text</span>(<span class="hljs-number">22pt</span>, <span class="hljs-variable">weight</span>: <span class="hljs-string">&quot;bold&quot;</span>)[<span class="hljs-variable">Invoice</span>]
+    #<span class="hljs-built_in">text</span>(<span class="hljs-number">22pt</span>, <span class="hljs-variable">weight</span>: <span class="hljs-string">&quot;bold&quot;</span>)[Invoice]
     #<span class="hljs-built_in">v</span>(<span class="hljs-number">0.5em</span>)
-    #<span class="hljs-built_in">text</span>(<span class="hljs-number">11pt</span>, <span class="hljs-variable">fill</span>: <span class="hljs-variable">gray</span>)[<span class="hljs-variable">Issued</span> <span class="hljs-variable">by</span> #<span class="hljs-variable">issuer</span>]
+    #<span class="hljs-built_in">text</span>(<span class="hljs-number">11pt</span>, <span class="hljs-variable">fill</span>: <span class="hljs-variable">gray</span>)[Issued by #<span class="hljs-variable">issuer</span>]
   ]
 
   <span class="hljs-built_in">v</span>(<span class="hljs-number">1.5em</span>)
 
   <span class="hljs-built_in">grid</span>(
     <span class="hljs-built_in">columns</span>: (<span class="hljs-number">1fr</span>, <span class="hljs-number">1fr</span>),
-    [*<span class="hljs-variable">Bill</span> <span class="hljs-variable">to</span>*], [*<span class="hljs-variable">Due</span>*],
+    [<span class="hljs-emphasis">*Bill to*</span>], [<span class="hljs-emphasis">*Due*</span>],
     [#<span class="hljs-variable">recipient</span>], [#<span class="hljs-variable">due</span>],
   )
 
@@ -41,19 +41,19 @@
   #<span class="hljs-built_in">table</span>(
     <span class="hljs-built_in">columns</span>: (<span class="hljs-number">1fr</span>, <span class="hljs-built_in">auto</span>),
     <span class="hljs-built_in">stroke</span>: <span class="hljs-number">0.5pt</span> + <span class="hljs-variable">gray</span>,
-    <span class="hljs-variable">fill</span>: (<span class="hljs-variable">col</span>, <span class="hljs-variable">row</span>) =&gt; <span class="hljs-keyword">if</span> <span class="hljs-variable">row</span> == <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> <span class="hljs-variable">row</span> == lines.<span class="hljs-function">len</span>() + <span class="hljs-number">1</span> { <span class="hljs-function">luma</span>(<span class="hljs-number">240</span>) } <span class="hljs-keyword">else</span> { <span class="hljs-built_in">none</span> },
-    <span class="hljs-built_in">table</span>.header(
-      [*<span class="hljs-variable">Item</span>*], [*<span class="hljs-variable">Amount</span>*],
-      ..lines.<span class="hljs-function">map</span>(<span class="hljs-variable">l</span> =&gt; ([#<span class="hljs-variable">l</span>.<span class="hljs-built_in">label</span>], [$#<span class="hljs-variable">l</span>.<span class="hljs-variable">amount</span>.<span class="hljs-function">to-fixed</span>(<span class="hljs-number">2</span>)])).<span class="hljs-function">flatten</span>()
+    <span class="hljs-variable">fill</span>: (<span class="hljs-variable">col</span>, <span class="hljs-variable">row</span>) =&gt; <span class="hljs-keyword">if</span> <span class="hljs-variable">row</span> == <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> <span class="hljs-variable">row</span> == <span class="hljs-variable">lines</span>.<span class="hljs-function">len</span>() + <span class="hljs-number">1</span> { <span class="hljs-function">luma</span>(<span class="hljs-number">240</span>) } <span class="hljs-keyword">else</span> { <span class="hljs-built_in">none</span> },
+    <span class="hljs-built_in">table</span>.<span class="hljs-function">header</span>(
+      [<span class="hljs-emphasis">*Item*</span>], [<span class="hljs-emphasis">*Amount*</span>],
+      ..<span class="hljs-variable">lines</span>.<span class="hljs-function">map</span>(<span class="hljs-variable">l</span> =&gt; ([#<span class="hljs-variable">l</span>.<span class="hljs-built_in">label</span>], [<span class="hljs-meta">$#l.amount.to-fixed(2)])).flatten()
     ),
-    [*<span class="hljs-variable">Total</span>*], [*$#<span class="hljs-variable">total</span>.<span class="hljs-function">to-fixed</span>(<span class="hljs-number">2</span>)*],
+    [*Total*], [*$</span>#<span class="hljs-variable">total</span>.<span class="hljs-function">to-fixed</span>(<span class="hljs-number">2</span>)*],
   )
 
   <span class="hljs-built_in">v</span>(<span class="hljs-number">1fr</span>)
   <span class="hljs-built_in">align</span>(<span class="hljs-variable">center</span>)[
-    #<span class="hljs-built_in">text</span>(<span class="hljs-number">9pt</span>, <span class="hljs-variable">fill</span>: <span class="hljs-variable">gray</span>)[<span class="hljs-variable">Thank</span> <span class="hljs-variable">you</span> <span class="hljs-keyword">for</span> <span class="hljs-variable">your</span> <span class="hljs-variable">business</span>.]
+    #<span class="hljs-built_in">text</span>(<span class="hljs-number">9pt</span>, <span class="hljs-variable">fill</span>: <span class="hljs-variable">gray</span>)[Thank you for your business.]
   ]
 }
 
-#invoice()
+#<span class="hljs-function">invoice</span>()
 

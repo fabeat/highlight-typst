@@ -1,0 +1,35 @@
+// Regression test: a content block `[...]` inside `parensMode`
+// (i.e. as an argument to a function call, like
+// `#box(text[Hello])`). Before the fix, `[` had no rule to
+// match it inside `(...)`, so the markup text inside the
+// content block was scanned by the code-mode variable rule
+// and painted as `hljs-variable`. With the fix, a separate
+// `nestedContentBlockMode` (no `endsParent: true`, so the
+// closing `]` does not bubble up and break the enclosing
+// parens) is wired into `parensMode.contains` and
+// `bracesMode.contains` so `[...]` is recognised as a
+// markup switch in any code-mode scope.
+//
+// Most visible in the user-reported `28. SEPTEMBER` line in
+// the Spora plugin's Datums-Pille example - the inner markup
+// text `SEPTEMBER` was lighting up red before the fix.
+
+// Simple: `[text]` inside `(...)` is markup, not code.
+#box(text[Hello])
+
+// With named arguments before the content block.
+#box(text(size: 13pt, weight: "bold")[Hello and stuff])
+
+// Multiple content-block arguments.
+#box(pad(x: 50pt, y: 143pt)[Hello], pad(x: 10pt)[World])
+
+// Content block inside braces.
+#let f = { x: [Hello] }
+
+// Multiple single-line content blocks inside a function call.
+#list([a], [b], [c])
+
+// The user-reported showcase line (Datums-Pille).
+#box(fill: cyan, radius: 999pt, inset: (x: 22pt, y: 9pt), text(size: 13pt, weight: "bold", fill: bg, tracking: 0.8pt)[
+    28. SEPTEMBER
+  ])

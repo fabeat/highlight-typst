@@ -15,7 +15,7 @@
 
 <span class="hljs-comment">// The exact line from `spora-plugin-typst/skills/typst/examples/showcase.typ`.</span>
 <span class="hljs-emphasis">*Bold text*</span>, <span class="hljs-emphasis">_italic text_</span>, `inline code`, and inline math
-delimiters (the `$ <span class="hljs-string">...</span> $` pair — see section <span class="hljs-number">7</span>).
+delimiters (the `$ <span class="hljs-string">...</span> $` pair — see section 7).
 
 <span class="hljs-comment">// Other shapes that previously misbehaved the same way.</span>
 Bare: `$ <span class="hljs-string">...</span> $`.
@@ -23,7 +23,7 @@ Bare: `$ <span class="hljs-string">...</span> $`.
 Math inside an inline-code span: `` `$x$` `` and `` `$ <span class="hljs-string">...</span> $` ``.
 
 Display-math-like text inside backticks is also left alone
-because `$ ` is whitespace after, not math start: `` `$ x^<span class="hljs-number">2</span> $` ``.
+because `$ ` is whitespace after, not math start: `` `$ x^2 $` ``.
 
 A real inline-math next to an inline-code span still highlights
 as math when the `$` is not at a backtick boundary: <span class="hljs-meta">$x$</span> and `` `$y$` ``.

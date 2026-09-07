@@ -16,13 +16,13 @@
 <span class="hljs-comment">// list. None of them should be highlighted in markup mode</span>
 <span class="hljs-comment">// (i.e. without a leading `#`).</span>
 
-This is body text under a level-<span class="hljs-number">1</span> heading. The word text
+This is body text under a level-1 heading. The word text
 appears three times here: text, text, text.
 
 A second-level heading follows. The word heading is plain
 text in this sentence.
 
-Body text under level <span class="hljs-number">3</span> — useful for subsections that don&#x27;t
+Body text under level 3 — useful for subsections that don&#x27;t
 appear in the auto-generated table of contents.
 
 #<span class="hljs-built_in">emph</span>[Inline emphasis] and #<span class="hljs-built_in">strong</span>[strong text] round out

@@ -4,7 +4,7 @@
 This is rendered by <span class="hljs-emphasis">*ext-typst*</span> via the plugin.
 
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">name</span> = <span class="hljs-string">&quot;World&quot;</span>
-#<span class="hljs-keyword">let</span> <span class="hljs-variable">greeting</span> = [Hello, #name!]
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">greeting</span> = [Hello, #<span class="hljs-variable">name</span>!]
 
 #<span class="hljs-variable">greeting</span>
 

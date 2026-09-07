@@ -11,7 +11,7 @@
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">pt</span> = <span class="hljs-number">12pt</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">mm</span> = <span class="hljs-number">25.4mm</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">cm</span> = <span class="hljs-number">2.5cm</span>
-#<span class="hljs-keyword">let</span> inches = <span class="hljs-number">1in</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">inches</span> = <span class="hljs-number">1in</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">em</span> = <span class="hljs-number">1.5em</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">rem</span> = <span class="hljs-number">2rem</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">px</span> = <span class="hljs-number">720px</span>
@@ -19,7 +19,7 @@
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">deg</span> = <span class="hljs-number">90deg</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">rad</span> = <span class="hljs-number">3.14rad</span>
 
-#<span class="hljs-keyword">let</span> grid_unit = <span class="hljs-number">1fr</span>
+#<span class="hljs-keyword">let</span> <span class="hljs-variable">grid_unit</span> = <span class="hljs-number">1fr</span>
 #<span class="hljs-keyword">let</span> <span class="hljs-variable">percent</span> = <span class="hljs-number">50</span>%
 
 <span class="hljs-comment">// Numbers inside larger expressions should still tokenise:</span>

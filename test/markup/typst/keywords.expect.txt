@@ -47,6 +47,6 @@
 #<span class="hljs-keyword">set</span> <span class="hljs-built_in">text</span>(<span class="hljs-number">10pt</span>)
 #<span class="hljs-keyword">show</span> <span class="hljs-built_in">heading</span>: <span class="hljs-variable">it</span> =&gt; <span class="hljs-built_in">block</span>(<span class="hljs-variable">it</span>)
 #<span class="hljs-keyword">context</span> {
-  <span class="hljs-keyword">let</span> <span class="hljs-variable">m</span> = <span class="hljs-built_in">measure</span>(<span class="hljs-built_in">box</span>(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>, height: <span class="hljs-number">1em</span>))
+  <span class="hljs-keyword">let</span> <span class="hljs-variable">m</span> = <span class="hljs-built_in">measure</span>(<span class="hljs-built_in">box</span>(<span class="hljs-variable">width</span>: <span class="hljs-number">1em</span>, <span class="hljs-variable">height</span>: <span class="hljs-number">1em</span>))
 }
 
