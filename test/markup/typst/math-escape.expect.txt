@@ -1,0 +1,30 @@
+<span class="hljs-comment">// Regression test for the `\$` escape in markup. Before</span>
+<span class="hljs-comment">// the fix, the inline-math begin regex excluded word chars</span>
+<span class="hljs-comment">// and backticks as predecessors but NOT a backslash, so</span>
+<span class="hljs-comment">// every `\$` in markup text opened a math span. In the</span>
+<span class="hljs-comment">// Spora plugin&#x27;s showcase template, the salary cells</span>
+<span class="hljs-comment">// `[\\$90k]`, `[\$85k]`, `[\$110k]` all lit up `hljs-meta`</span>
+<span class="hljs-comment">// even though `\$` is Typst&#x27;s escape for a literal dollar</span>
+<span class="hljs-comment">// sign. The fix adds `\\` (a single backslash) to the</span>
+<span class="hljs-comment">// negative lookbehind so `\$` no longer starts math.</span>
+
+<span class="hljs-comment">// Salary-pill cells from `skills/typst/examples/showcase.typ`.</span>
+#<span class="hljs-built_in">table</span>(
+  <span class="hljs-built_in">columns</span>: (<span class="hljs-built_in">auto</span>, <span class="hljs-number">1fr</span>, <span class="hljs-built_in">auto</span>),
+  <span class="hljs-built_in">table</span>.<span class="hljs-function">header</span>(
+    [<span class="hljs-emphasis">*Name*</span>], [<span class="hljs-emphasis">*Role*</span>], [<span class="hljs-emphasis">*Salary*</span>],
+    [Alice], [Engineer], [\\$90k],
+    [Bob],   [Designer], [\$85k],
+    [Carol], [Manager],  [\$110k],
+  ),
+)
+
+<span class="hljs-comment">// Standalone `\$` literals in body markup.</span>
+Items cost \$5, \$10, and \$20 each.
+
+<span class="hljs-comment">// The actual line that produced the user-reported</span>
+<span class="hljs-comment">// rendering glitch in 0.1.1: a comment that mentioned</span>
+<span class="hljs-comment">// inline math delimiters next to a real inline-math</span>
+<span class="hljs-comment">// expression still resolves correctly.</span>
+$ e^(i pi) + 1 = 0 $ — Euler&#x27;s identity, with <span class="hljs-meta">$x$</span> inline.
+

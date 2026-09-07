@@ -1,0 +1,29 @@
+// Regression test for the `\$` escape in markup. Before
+// the fix, the inline-math begin regex excluded word chars
+// and backticks as predecessors but NOT a backslash, so
+// every `\$` in markup text opened a math span. In the
+// Spora plugin's showcase template, the salary cells
+// `[\\$90k]`, `[\$85k]`, `[\$110k]` all lit up `hljs-meta`
+// even though `\$` is Typst's escape for a literal dollar
+// sign. The fix adds `\\` (a single backslash) to the
+// negative lookbehind so `\$` no longer starts math.
+
+// Salary-pill cells from `skills/typst/examples/showcase.typ`.
+#table(
+  columns: (auto, 1fr, auto),
+  table.header(
+    [*Name*], [*Role*], [*Salary*],
+    [Alice], [Engineer], [\\$90k],
+    [Bob],   [Designer], [\$85k],
+    [Carol], [Manager],  [\$110k],
+  ),
+)
+
+// Standalone `\$` literals in body markup.
+Items cost \$5, \$10, and \$20 each.
+
+// The actual line that produced the user-reported
+// rendering glitch in 0.1.1: a comment that mentioned
+// inline math delimiters next to a real inline-math
+// expression still resolves correctly.
+$ e^(i pi) + 1 = 0 $ — Euler's identity, with $x$ inline.

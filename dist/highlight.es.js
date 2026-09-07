@@ -272,24 +272,28 @@ function TYPST_LANGUAGE (hljs) {
     },
 
     // Inline math: `$x$`. Strict begin: `$` not preceded by
-    // a word char OR a backtick (so `` `$ ... $` `` in
-    // markup - inline code wrapping a literal `$ ... $` -
-    // does not open a math span that swallows the rest of
-    // the document), not preceded by another `$` (to skip
-    // `$$`); followed by a non-whitespace, non-backtick
-    // char (so `$ ` for display math is left alone - that
-    // case is the `$$ ... $$` rule above - and `$`\`` at
-    // the end of an inline-code span does not start a
-    // math). Strict end: `$` not followed by a digit or
-    // letter (so `100$` or `var$` don't match). This
-    // means `$#var$` (Typst syntax inside math) still
-    // works because `$` is at a word boundary, and
-    // `*$#var*` in markup is safe because the `$` is
-    // preceded by `*` (which is a word boundary for our
-    // purposes).
+    // a word char, a backtick, OR a backslash (so
+    // `` `$ ... $` `` in markup - inline code wrapping a
+    // literal `$ ... $` - does not open a math span that
+    // swallows the rest of the document, and `\$` in
+    // markup - Typst's escape for a literal dollar sign -
+    // does not start a math block either; this matters in
+    // templates like `[\\$90k]` salary cells where `\\$`
+    // is two escaped backslashes followed by an escaped
+    // dollar, neither of which is a math delimiter);
+    // followed by a non-whitespace, non-backtick char (so
+    // `$ ` for display math is left alone - that case is
+    // the `$$ ... $$` rule above - and `$`\`` at the end
+    // of an inline-code span does not start a math).
+    // Strict end: `$` not followed by a digit or letter
+    // (so `100$` or `var$` don't match). This means
+    // `$#var$` (Typst syntax inside math) still works
+    // because `$` is at a word boundary, and `*$#var*` in
+    // markup is safe because the `$` is preceded by `*`
+    // (which is a word boundary for our purposes).
     {
       className: 'meta',
-      begin: '(?<!\\w|`)\\$(?![\\s`])',
+      begin: '(?<!\\w|`|\\\\)\\$(?![\\s`])',
       end: '\\S\\$(?!\\w)',
       relevance: 0,
     },
